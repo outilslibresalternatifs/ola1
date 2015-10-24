@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>OLA #1 : Salle des exposition</title>
+<html lang="fr">
+  <meta charset=utf-8 />
+  <title>OLA #1 : Le Palais des Outils Loufoques</title>
+  <link rel="stylesheet" href="font/ola-sans.css">
   <style>
     html {box-sizing: border-box;}
     *, *:before, *:after {box-sizing: inherit;}
     body {
       background-image: #888;
       cursor: crosshair;
-      font-family: arial;
+      font-family: ola_sans, arial;
       margin: 0;
       overflow: hidden;
       padding: 0;
@@ -20,15 +22,7 @@
       user-select: none;
     }
 
-    p {
-      background-color: #EEEEEE;
-      border: 1px solid black;
-      display: inline-block;
-      margin: 0;
-      padding: 5px;
-    }
     #radar {
-      background-color: #EEEEEE;
       bottom: 10px;
       left: 10px;
       position: absolute;
@@ -38,7 +32,7 @@
       background-color: #000000;
       color: #FFFFFF;
       cursor: pointer;
-      padding-top: 3vh;
+      padding-top: 40vh;
       font-size: 32px;
       text-align: center;
       z-index: 1001;
@@ -46,10 +40,7 @@
 
   </style>
   <script src="jquery-1.7.2.min.js"></script>
-  <!-- <script src="PointerLock.js"></script> --> <!-- Insufficient browser support, interferes with other mouse events -->
-  <!-- <script src="Pathfinder.js"></script> -->
   <script src="Three.js"></script>
-  <!-- <script src="ColladaLoader.js"></script> -->
   <script src="Three.FirstPersonControls.js"></script>
   <script src="main.js"></script>
 </head>
