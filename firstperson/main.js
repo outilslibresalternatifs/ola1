@@ -9,12 +9,12 @@
 var map = [ // 1  2  3  4  5  6  7  8  9
            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1,], // 0
            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1,], // 2
-           [1, 0, 0, 0, 1, 0, 0, 0, 0, 1,], // 3
+           [1, 0, 0, 0, 0, 0, 0, 0, 0, 1,], // 3
            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1,], // 4
-           [1, 0, 0, 0, 0, 0, 0, 1, 1, 1,], // 5
+           [1, 0, 0, 0, 0, 0, 0, 0, 0, 1,], // 5
            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1,], // 6
            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1,], // 7
-           [1, 0, 0, 0, 0, 0, 1, 0, 0, 1,], // 8
+           [1, 0, 0, 0, 0, 0, 0, 0, 0, 1,], // 8
            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1,], // 9
            ], mapW = map.length, mapH = map[0].length;
 
@@ -23,28 +23,27 @@ var WIDTH = window.innerWidth,
   HEIGHT = window.innerHeight,
   ASPECT = WIDTH / HEIGHT,
   UNITSIZE = 250,
-  WALLHEIGHT = UNITSIZE * 3,
+  WALLHEIGHT = 70,
   MOVESPEED = 100,
   LOOKSPEED = 0.075,
   BULLETMOVESPEED = MOVESPEED * 5,
   NUMAI = 0,
   FLOORCOLOR = 0xeeeeee,
   WALLCOLOR = 0xffffff,
-  BGCOLOR = '#ffffff',
+  BGCOLOR = '#ff00',
   LIGHTCOLOR = 0xffffff;
   FOGCOLOR = 0xffffff;
-  PROJECTILEDAMAGE = 20;
+  PROJECTILEDAMAGE = 20,
+  OBJECTS = ['objects/ola.json' ,'objects/teapot.js'];
+//  OBJECTS = [{objet:'objects/ola.json',posx:1,posy:1,posz:1} ,'objects/teapot.js'];
+
 // Global vars
 var t = THREE, scene, cam, renderer, controls, clock, projector, model, skin;
 var runAnim = true, mouse = { x: 0, y: 0 }, kills = 0, health = 100;
 var healthCube, lastHealthPickup = 0;
-/*
-var finder = new PF.AStarFinder({ // Defaults to Manhattan heuristic
-  allowDiagonal: true,
-}), grid = new PF.Grid(mapW, mapH, map);
-*/
+var scene;
 
-// Initialize and run on document ready
+
 $(document).ready(function() {
   $('body').append('<div id="intro">Le Palais des Outils Loufoques</div>');
   $('#intro').css({width: WIDTH, height: HEIGHT}).one('click', function(e) {
@@ -54,7 +53,6 @@ $(document).ready(function() {
     setInterval(drawRadar, 500);
     animate();
   });
-
 });
 
 // Setup
@@ -68,7 +66,6 @@ function init() {
   cam = new t.PerspectiveCamera(60, ASPECT, 1, 10000); // FOV, aspect, near, far
   cam.position.y = UNITSIZE * .2;
   scene.add(cam);
-  scene.add(sphere);
 
   // Camera moves with mouse, flies around with WASD/arrow keys
   controls = new t.FirstPersonControls(cam);
@@ -104,6 +101,27 @@ function init() {
 
   // Display HUD
   $('body').append('<canvas id="radar" width="100" height="100"></canvas>');
+
+  // Importer
+  for (var i = 0; i < OBJECTS.length; i++) {
+    var loader = new THREE.JSONLoader();
+    var material = new THREE.MeshBasicMaterial({ color: 0xff00ff });
+    var counter = i;
+    loadObjects(i);
+  }
+
+  function loadObjects (index){
+    loader.load( OBJECTS[index], function( geometry, materials, posx, posy, posz) {
+      var mesh = new THREE.Mesh( geometry, material );
+      mesh.scale.set(1,1,1);
+    console.log('index:',index);
+      mesh.position.x = posx = 3+index*200;
+      mesh.position.y = posy = 10;
+      mesh.position.z = posz = 3+index*2;
+      scene.add( mesh );
+      console.log(counter);
+    });
+  }
 }
 
 // Helper function for browser frames
@@ -216,22 +234,6 @@ function render() {
       scene.remove(a);
       addAI();
     }
-    /*
-    var c = getMapSector(a.position);
-    if (a.pathPos == a.path.length-1) {
-      console.log('finding new path for '+c.x+','+c.z);
-      a.pathPos = 1;
-      a.path = getAIpath(a);
-    }
-    var dest = a.path[a.pathPos], proportion = (c.z-dest[1])/(c.x-dest[0]);
-    a.translateX(aispeed * proportion);
-    a.translateZ(aispeed * 1-proportion);
-    console.log(c.x, c.z, dest[0], dest[1]);
-    if (c.x == dest[0] && c.z == dest[1]) {
-      console.log(c.x+','+c.z+' reached destination');
-      a.PathPos++;
-    }
-    */
     var cc = getMapSector(cam.position);
     if (Date.now() > a.lastShot + 750 && distance(c.x, c.z, cc.x, cc.z) < 2) {
       createBullet(a);
@@ -298,30 +300,16 @@ function setupScene() {
   var directionalLight2 = new t.DirectionalLight( LIGHTCOLOR, 0.9 );
   directionalLight2.position.set( 0.1, .1, .1 );
   scene.add( directionalLight2 );
-  // var directionalLight2 = new t.DirectionalLight( LIGHTCOLOR, 0.9 );
-  // directionalLight2.position.set( -0.5, -1, -0.5 );
-  // scene.add( directionalLight2 );
+  var directionalLight2 = new t.DirectionalLight( LIGHTCOLOR, 0.9 );
+  directionalLight2.position.set( -0.5, 30, -0.5 );
+  scene.add( directionalLight2 );
   // var directionalLight3 = new t.DirectionalLight( 0xffffff, 0.8 );
   // directionalLight3.position.set( -0.5, -1, -0.5 );
   // scene.add( directionalLight3 );
 }
 
-var sphere = new t.SphereGeometry(10,10,10);
-var colormat = new t.MeshBasicMaterial({color: 0xFF0000});
-var s = new t.Mesh(sphere, colormat)
-s.position.set(1,30,1);
 
-function createSphere(color, posx, posy, posz){
-  this.color = color;
-  this.posx = posx;
-  this.posy = posy;
-  this.posz = posz;
-  this.size = 10;
-  var sphere = new t.Mesh(new t.SphereGeometry(this.size,this.size,this.size), new t.MeshBasicMaterial({color:this.color}));
-  sphere.position.set(this.posx,this.posy,this.posz);
-  return sphere;
-}
-var sphere = createSphere(0xff0000, 1,UNITSIZE,1);
+// MOBS
 
 var ai = [];
 var aiGeo = new t.CubeGeometry(40, 40, 40);
@@ -380,7 +368,6 @@ function getMapSector(v) {
   var z = Math.floor((v.z + UNITSIZE / 2) / UNITSIZE + mapW/2);
   return {x: x, z: z};
 }
-
 
 function checkWallCollision(v) {
   var c = getMapSector(v);
@@ -458,10 +445,8 @@ function createBullet(obj) {
     );
   }
   sphere.owner = obj;
-
   bullets.push(sphere);
   scene.add(sphere);
-
   return sphere;
 }
 
