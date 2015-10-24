@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>WebGL FPS - AngelHack SV 2012 - Isaac Sukin</title>
+  <title>OLA #1 : Salle des exposition</title>
   <style>
+    html {box-sizing: border-box;}
+    *, *:before, *:after {box-sizing: inherit;}
     body {
-      background-image: url('images/screenshot.jpg');
+      background-image: #888;
       cursor: crosshair;
-      font-family: Georgia, Helvetica, sans-serif;
-      font-weight: bold;
+      font-family: arial;
       margin: 0;
       overflow: hidden;
       padding: 0;
@@ -18,20 +19,7 @@
       -ms-user-select: none;
       user-select: none;
     }
-    #hud {
-      bottom: 10px;
-      position: absolute;
-      right: 10px;
-      z-index: 100;
-    }
-    #credits {
-      font-size: 12px;
-      position: absolute;
-      text-align: center;
-      top: 10px;
-      width: 100%;
-      z-index: 100;
-    }
+
     p {
       background-color: #EEEEEE;
       border: 1px solid black;
@@ -41,7 +29,6 @@
     }
     #radar {
       background-color: #EEEEEE;
-      border: 1px solid black;
       bottom: 10px;
       left: 10px;
       position: absolute;
@@ -51,22 +38,12 @@
       background-color: #000000;
       color: #FFFFFF;
       cursor: pointer;
+      padding-top: 3vh;
       font-size: 32px;
-      opacity: 0.7;
-      padding: 120px;
       text-align: center;
       z-index: 1001;
     }
-    #hurt {
-      background-color: red;
-      display: none;
-      left: 0;
-      opacity: 0.15;
-      pointer-events: none;
-      position: absolute;
-      top: 0;
-      z-index: 1002;
-    }
+
   </style>
   <script src="jquery-1.7.2.min.js"></script>
   <!-- <script src="PointerLock.js"></script> --> <!-- Insufficient browser support, interferes with other mouse events -->
