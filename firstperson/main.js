@@ -124,17 +124,34 @@ function init() {
   // }
 
   // Importer
-
   var loader = new THREE.JSONLoader();
   var material = new THREE.MeshBasicMaterial({ color: 0x220000 });
 
   // OLA
   loader.load( "objects/ola.json", function( geometry) {
-    mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial({ color: 0xffffff }) );
+    mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial({ color: 0x000fff }) );
     mesh.scale.set(1,1,1);
     mesh.position.x = 13;
     mesh.position.y = 13;
     mesh.position.z = 30;
+    scene.add( mesh );
+  });
+  // FORK
+  loader.load( "objects/teapot.js", function( geometry) {
+    mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial({ color: 0xff0000 }) );
+    mesh.scale.set(1,1,1);
+    mesh.position.x = 13;
+    mesh.position.y = 43;
+    mesh.position.z = 30;
+    scene.add( mesh );
+  });
+  // FORK
+  loader.load( "objects/fork.json", function( geometry) {
+    mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial({ color: 0x00000f }) );
+    mesh.scale.set(1,1,1);
+    mesh.position.x = 13;
+    mesh.position.y = 43;
+    mesh.position.z = 20;
     scene.add( mesh );
   });
 
