@@ -125,9 +125,9 @@ function init() {
     mesh.position.y = 0;
     mesh.position.z = -200;
     mesh.userData = { URL: "./objects/fork.json"};
-    mesh.name = "Fourchette";
-    mesh.author = "Nom de l'auteur";
-    mesh.description = "Description de l'objet";
+    mesh.name = "Fork";
+    mesh.author = "Raphaël";
+    mesh.description = "Fourchette forquée";
     scene.add( mesh );
     objectPositions.push(mesh);
     objects.push(mesh);
@@ -140,9 +140,10 @@ function init() {
     mesh.position.y = 50;
     mesh.position.z = 0;
     mesh.userData = { URL: "./objects/pantalon.json"};
-    mesh.name = "Pantalon";
-    mesh.author = "Nom de l'auteur";
-    mesh.description = "Description de l'objet";
+    mesh.name = "Braguette féminine";
+    mesh.author = "Louise Drulhe";
+    mesh.description = "De la même manière que la braguette classique permet aux hommes de faire pipi au coin d’une rue sombre le soir, la braguette feminine donne aux femmes la possibilité de faire pipi sans baisser le pantalon. 
+Il s’agit d’une ouverture d’une dizaine de centimètres entre les deux jambes. Une fois accroupi et la braguette feminine ouverte il ne reste plus qu’à faire pipi ! ";
     scene.add( mesh );
     objectPositions.push(mesh);
     objects.push(mesh);
@@ -155,9 +156,10 @@ function init() {
     mesh.position.y = 50;
     mesh.position.z = 0;
     mesh.userData = { URL: "./objects/pantalon2.json"};
-    mesh.name = "Pantalon";
-    mesh.author = "Nom de l'auteur";
-    mesh.description = "Description de l'objet";
+    mesh.name = "Braguette féminine";
+    mesh.author = "Louise Drulhe";
+    mesh.description = "De la même manière que la braguette classique permet aux hommes de faire pipi au coin d’une rue sombre le soir, la braguette feminine donne aux femmes la possibilité de faire pipi sans baisser le pantalon. 
+Il s’agit d’une ouverture d’une dizaine de centimètres entre les deux jambes. Une fois accroupi et la braguette feminine ouverte il ne reste plus qu’à faire pipi ! ";
     scene.add( mesh );
     objectPositions.push(mesh);
     objects.push(mesh);
@@ -170,9 +172,9 @@ function init() {
     mesh.position.y = 50;
     mesh.position.z = 0;
     mesh.userData = { URL: "./objects/julien.json"};
-    mesh.name = "Julien";
-    mesh.author = "Nom de l'auteur";
-    mesh.description = "Description de l'objet";
+    mesh.name = "Formes";
+    mesh.author = "Julien Gargot (mécène)";
+    mesh.description = "Monstration de l’utilisation de différentes techniques d’outils sur cubes, objets par défaut de Blender. ";
     scene.add( mesh );
     objectPositions.push(mesh);
     objects.push(mesh);
@@ -186,13 +188,12 @@ function init() {
     mesh.position.y = 0;
     mesh.position.z = 6;
      mesh.userData = { URL: "./objects/nelson.json"};
-    mesh.name = "Nelson";
-    mesh.author = "Nom de l'auteur";
-    mesh.description = "Description de l'objet";
+    mesh.name = "NanoHippoCameoTrisoRobot";
+    mesh.author = "Nelson Steinmetz";
+    mesh.description = "Un nano-robot caméléon-hippocampe en retard";
     scene.add( mesh );
     objectPositions.push(mesh);
     objects.push(mesh);
-  });
   // dyson
   loader.load( "objects/dyson.json", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial );
@@ -201,9 +202,9 @@ function init() {
     mesh.position.y = 50;
     mesh.position.z = 0;
     mesh.userData = { URL: "./objects/dyson.json"};
-    mesh.name = "Dyson";
-    mesh.author = "Nom de l'auteur";
-    mesh.description = "Description de l'objet";
+    mesh.name = "Sphère de Dyson en construction";
+    mesh.author = "Vadim";
+    mesh.description = "Inspirée par le comportement étrange de l’étoile KIC 8462852";
     scene.add( mesh );
     objectPositions.push(mesh);
     objects.push(mesh);
@@ -216,9 +217,9 @@ function init() {
     mesh.position.y = 30;
     mesh.position.z = 0;
      mesh.userData = { URL: "./objects/chaise.json"};
-    mesh.name = "Chaise";
-    mesh.author = "Nom de l'auteur";
-    mesh.description = "Description de l'objet";
+    mesh.name = "Chaise plate";
+    mesh.author = "Sarah Garcin";
+    mesh.description = "Une chaise Louis XV posée à plat";
     mesh.position.z = -500;
     scene.add( mesh );
     objectPositions.push(mesh);
@@ -232,9 +233,9 @@ function init() {
     mesh.position.y = 50;
     mesh.position.z = 0;
      mesh.userData = { URL: "./objects/geographie.json"};
-    mesh.name = "Geo";
-    mesh.author = "Nom de l'auteur";
-    mesh.description = "Description de l'objet";
+    mesh.name = "Géoagraphie";
+    mesh.author = "Mathilde";
+    mesh.description = "Sans description";
     mesh.position.z = 400;
     scene.add( mesh );
     objectPositions.push(mesh);
@@ -248,9 +249,9 @@ function init() {
     mesh.position.y = 10;
     mesh.position.z = -500;
      mesh.userData = { URL: "./objects/hugo-totems.json"};
-    mesh.name = "Totems";
-    mesh.author = "Nom de l'auteur";
-    mesh.description = "Description de l'objet";
+    mesh.name = "Trois petits totems";
+    mesh.author = "hugohil";
+    mesh.description = "Trois petits totems d'origine inconnue.";
     scene.add( mesh );
     objectPositions.push(mesh);
     objects.push(mesh);
@@ -264,9 +265,9 @@ function init() {
     mesh.position.y = 50;
     mesh.position.z = 200;
      mesh.userData = { URL: "./objects/AK-P.json"};
-    mesh.name = "AKP2";
-    mesh.author = "Nom de l'auteur";
-    mesh.description = "Description de l'objet";
+    mesh.name = "AK-P";
+    mesh.author = "leo";
+    mesh.description = "Un outil polyvalent et approprié au prolétaire.";
     mesh.position.z = 700;
     scene.add( mesh );
     objectPositions.push(mesh);
@@ -281,9 +282,9 @@ function init() {
     mesh.position.y = 50;
     mesh.position.z = 200;
      mesh.userData = { URL: "./objects/birdman.json"};
-    mesh.name = "Birdman";
-    mesh.author = "Nom de l'auteur";
-    mesh.description = "Description de l'objet";
+    mesh.name = "BirdMan";
+    mesh.author = "Nolwenn Maudet";
+    mesh.description = "Un BirdMan est un outil très pratique pour vous balader en ville. Accrochez vous à ses pattes et demandez-lui une direction, il vous amènera à destination. Plus sympa qu'un taxi, moins cher qu'un Uber, profitez d'une vue à 900° de votre ville et dites adieu aux ascenceurs !";
     mesh.position.z = 700;
     scene.add( mesh );
     objectPositions.push(mesh);
@@ -299,8 +300,8 @@ function init() {
     mesh.position.z = 200;
      mesh.userData = { URL: "./objects/powerplant.json"};
     mesh.name = "Powerplant";
-    mesh.author = "Nom de l'auteur";
-    mesh.description = "Description de l'objet";
+    mesh.author = "bachir soussi chiadmi";
+    mesh.description = "énergie universelle";
     mesh.position.z = 700;
     scene.add( mesh );
     objectPositions.push(mesh);
@@ -315,9 +316,9 @@ function init() {
     mesh.position.y = 50;
     mesh.position.z = 200;
      mesh.userData = { URL: "./objects/louis.json"};
-    mesh.name = "Machine à clous";
-    mesh.author = "Nom de l'auteur";
-    mesh.description = "Description de l'objet";
+    mesh.name = "Machine à planter des clous";
+    mesh.author = "Louis Eveillard";
+    mesh.description = "D’après Gaston Lagaffe / Gala de Gaffes. Une machine pour planter un clou automatiquement. Nécessite 1 clou pour être fixée au mur au préalable.";
     mesh.position.z = 700;
     scene.add( mesh );
     objectPositions.push(mesh);
