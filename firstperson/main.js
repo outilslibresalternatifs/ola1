@@ -8,13 +8,13 @@
 
 var map = [ // 1  2  3  4  5  6  7  8  9
            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1,], // 0
-           [1, 0, 0, 0, 0, 0, 0, 0, 0, 1,], // 2
+           [1, 0, 0, 1, 0, 0, 0, 0, 0, 1,], // 2
            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1,], // 3
            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1,], // 4
            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1,], // 5
            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1,], // 6
            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1,], // 7
-           [1, 0, 0, 0, 0, 0, 0, 0, 0, 1,], // 8
+           [1, 0, 0, 0, 0, 0, 1, 0, 0, 1,], // 8
            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1,], // 9
            ], mapW = map.length, mapH = map[0].length;
 
@@ -23,7 +23,7 @@ var WIDTH = window.innerWidth,
   HEIGHT = window.innerHeight,
   ASPECT = WIDTH / HEIGHT,
   UNITSIZE = 250,
-  WALLHEIGHT = 70,
+  WALLHEIGHT = 400,
   MOVESPEED = 100,
   LOOKSPEED = 0.075,
   BULLETMOVESPEED = MOVESPEED * 5,
@@ -31,10 +31,11 @@ var WIDTH = window.innerWidth,
   FLOORCOLOR = 0xeeeeee,
   WALLCOLOR = 0xffffff,
   BGCOLOR = '#ff00',
-  LIGHTCOLOR = 0xffffff;
-  FOGCOLOR = 0xffffff;
+  LIGHTCOLOR = 0xffffff,
+  FOGCOLOR = 0xffffff,
   PROJECTILEDAMAGE = 20,
-  OBJECTS = ['objects/ola.json' ,'objects/teapot.js' ,'objects/AKP.js'];
+  CAM_RADIUS = 200,
+  CAM_STEP = .001;
 //  OBJECTS = [{objet:'objects/ola.json',posx:1,posy:1,posz:1} ,'objects/teapot.js'];
 
 // Global vars
@@ -42,6 +43,9 @@ var t = THREE, scene, cam, renderer, controls, clock, projector, model, skin;
 var runAnim = true, mouse = { x: 0, y: 0 }, kills = 0, health = 100;
 var healthCube, lastHealthPickup = 0;
 var scene;
+var objectPositions = [];
+var currentTarget = 0;
+var isFirstPerson = false;
 
 
 $(document).ready(function() {
@@ -50,7 +54,6 @@ $(document).ready(function() {
     e.preventDefault();
     $(this).fadeOut();
     init();
-    setInterval(drawRadar, 500);
     animate();
   });
 });
@@ -77,11 +80,8 @@ function init() {
   // World objects
   setupScene();
 
-  // Artificial Intelligence
-  setupAI();
-
   // Handle drawing as WebGL (faster than Canvas but less supported)
-  renderer = new t.WebGLRenderer();
+  renderer = new t.WebGLRenderer({antialasing: true});
   renderer.setSize(WIDTH, HEIGHT);
 
   // Add the canvas to the document
@@ -100,28 +100,7 @@ function init() {
   });
 
   // Display HUD
-  $('body').append('<canvas id="radar" width="100" height="100"></canvas>');
-
-  // // Importer
-  // for (var i = 0; i < OBJECTS.length; i++) {
-  //   var loader = new THREE.JSONLoader();
-  //   var material = new THREE.MeshBasicMaterial({ color: 0x222222 });
-  //   var counter = i;
-  //   loadObjects(i);
-  // }
-  //
-  // function loadObjects (index){
-  //   loader.load( OBJECTS[index], function( geometry, materials, posx, posy, posz) {
-  //     var mesh = new THREE.Mesh( geometry, material );
-  //     mesh.scale.set(1,1,1);
-  //   console.log('index:',index);
-  //     mesh.position.x = posx = 3+index*200;
-  //     mesh.position.y = posy = 10;
-  //     mesh.position.z = posz = 3+index*2;
-  //     scene.add( mesh );
-  //     console.log(counter);
-  //   });
-  // }
+  // $('body').append('<canvas id="radar" width="100" height="100"></canvas>');
 
   // Importer
   var loader = new THREE.JSONLoader();
@@ -135,6 +114,7 @@ function init() {
     mesh.position.y = 50;
     mesh.position.z = 20;
     scene.add( mesh );
+    objectPositions.push(mesh);
   });
   // pantalon
   loader.load( "objects/pantalon.json", function( geometry) {
@@ -144,6 +124,7 @@ function init() {
     mesh.position.y = 50;
     mesh.position.z = 0;
     scene.add( mesh );
+    objectPositions.push(mesh);
   });
   // julien
   loader.load( "objects/forme.json", function( geometry) {
@@ -153,15 +134,19 @@ function init() {
     mesh.position.y = 50;
     mesh.position.z = 0;
     scene.add( mesh );
+    objectPositions.push(mesh);
   });
+
+  gouraudMaterial = new THREE.MeshLambertMaterial( { color: 0xffff00, shading: THREE.SmoothShading, side: THREE.DoubleSide } );
   // nelson
   loader.load( "objects/nelson.json", function( geometry) {
-    mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial({ color: 0x0000ff }) );
+    mesh = new THREE.Mesh( geometry, gouraudMaterial);
     mesh.scale.set(1,1,1);
     mesh.position.x = 300;
     mesh.position.y = 50;
     mesh.position.z = 0;
     scene.add( mesh );
+    objectPositions.push(mesh);
   });
   // dyson
   loader.load( "objects/dyson.json", function( geometry) {
@@ -171,6 +156,7 @@ function init() {
     mesh.position.y = 50;
     mesh.position.z = 0;
     scene.add( mesh );
+    objectPositions.push(mesh);
   });
   // chaise
   loader.load( "objects/chaise.json", function( geometry) {
@@ -180,6 +166,7 @@ function init() {
     mesh.position.y = 50;
     mesh.position.z = 0;
     scene.add( mesh );
+    objectPositions.push(mesh);
   });
   // geographie
   loader.load( "objects/geographie.json", function( geometry) {
@@ -189,6 +176,7 @@ function init() {
     mesh.position.y = 50;
     mesh.position.z = 0;
     scene.add( mesh );
+    objectPositions.push(mesh);
   });
   // tower
   loader.load( "objects/tower.json", function( geometry) {
@@ -198,6 +186,7 @@ function init() {
     mesh.position.y = 50;
     mesh.position.z = 100;
     scene.add( mesh );
+    objectPositions.push(mesh);
   });
   // AKP
   loader.load( "objects/AKP.json", function( geometry) {
@@ -207,6 +196,7 @@ function init() {
     mesh.position.y = 50;
     mesh.position.z = 200;
     scene.add( mesh );
+    objectPositions.push(mesh);
   });
   // AKP
   loader.load( "objects/AKP.json", function( geometry) {
@@ -216,22 +206,50 @@ function init() {
     mesh.position.y = 50;
     mesh.position.z = 200;
     scene.add( mesh );
+    objectPositions.push(mesh);
   });
+  cam.position.y = 75;
 } // end Init
 
 // Helper function for browser frames
-function animate() {
+function animate(millis) {
   if (runAnim) {
     requestAnimationFrame(animate);
   }
-  render();
+  render(millis);
 }
 
+function updateCamera (millis){
+  var target = objectPositions[currentTarget];
+  cam.position.x = (target.position.x + CAM_RADIUS) * Math.cos(millis * CAM_STEP);
+  cam.position.z = (target.position.z + CAM_RADIUS) * Math.sin(millis * CAM_STEP);
+  cam.lookAt(target.position);
+
+  // every 10s (more or less ...)
+  if(millis % 10 < .017){
+    currentTarget = nextTarget();
+  }
+}
+
+function nextTarget (){
+  return ((currentTarget + 1) >= objectPositions.length) ? 0 : currentTarget + 1;
+}
+
+document.addEventListener('keyup', function (event){
+  if(event.keyCode == 70){ // 70 = F key
+    isFirstPerson = !isFirstPerson;
+  }
+});
+
 // Update and display
-function render() {
+function render(millis) {
   var delta = clock.getDelta(), speed = delta * BULLETMOVESPEED;
   var aispeed = delta * MOVESPEED;
-  controls.update(delta); // Move camera
+  if(isFirstPerson){
+    controls.update(delta); // Move camera
+  } else {
+    updateCamera(millis);
+  }
 
   // Rotate the health cube
   healthcube.rotation.x += 0.004
@@ -299,56 +317,9 @@ function render() {
     }
   }
 
-  // Update AI.
-  for (var i = ai.length-1; i >= 0; i--) {
-    var a = ai[i];
-    if (a.health <= 0) {
-      ai.splice(i, 1);
-      scene.remove(a);
-      kills++;
-      $('#score').html(kills * 100);
-      addAI();
-    }
-    // Move AI
-    var r = Math.random();
-    if (r > 0.995) {
-      a.lastRandomX = Math.random() * 2 - 1;
-      a.lastRandomZ = Math.random() * 2 - 1;
-    }
-    a.translateX(aispeed * a.lastRandomX);
-    a.translateZ(aispeed * a.lastRandomZ);
-    var c = getMapSector(a.position);
-    if (c.x < 0 || c.x >= mapW || c.y < 0 || c.y >= mapH || checkWallCollision(a.position)) {
-      a.translateX(-2 * aispeed * a.lastRandomX);
-      a.translateZ(-2 * aispeed * a.lastRandomZ);
-      a.lastRandomX = Math.random() * 2 - 1;
-      a.lastRandomZ = Math.random() * 2 - 1;
-    }
-    if (c.x < -1 || c.x > mapW || c.z < -1 || c.z > mapH) {
-      ai.splice(i, 1);
-      scene.remove(a);
-      addAI();
-    }
-    var cc = getMapSector(cam.position);
-    if (Date.now() > a.lastShot + 750 && distance(c.x, c.z, cc.x, cc.z) < 2) {
-      createBullet(a);
-      a.lastShot = Date.now();
-    }
-  }
 
   renderer.render(scene, cam); // Repaint
 
-  // Death
-  if (health <= 0) {
-    runAnim = false;
-    $(renderer.domElement).fadeOut();
-    $('#radar, #hud, #credits').fadeOut();
-    $('#intro').fadeIn();
-    $('#intro').html('Restart');
-    $('#intro').one('click', function() {
-      location = location;
-    });
-  }
 }
 
 // Set up the objects in the world
@@ -392,15 +363,15 @@ function setupScene() {
   var directionalLight1 = new t.DirectionalLight( LIGHTCOLOR, 0.9 );
   directionalLight1.position.set( 1, 30, 1 );
   scene.add( directionalLight1 );
-  var directionalLight2 = new t.DirectionalLight( LIGHTCOLOR, 0.9 );
-  directionalLight2.position.set( 0.1, .1, .1 );
-  scene.add( directionalLight2 );
+  // var directionalLight2 = new t.DirectionalLight( LIGHTCOLOR, 0.9 );
+  // directionalLight2.position.set( 0.1, .1, .1 );
+  // scene.add( directionalLight2 );
   var directionalLight2 = new t.DirectionalLight( LIGHTCOLOR, 0.9 );
   directionalLight2.position.set( -0.5, 30, -0.5 );
   scene.add( directionalLight2 );
-  // var directionalLight3 = new t.DirectionalLight( 0xffffff, 0.8 );
-  // directionalLight3.position.set( -0.5, -1, -0.5 );
-  // scene.add( directionalLight3 );
+  var directionalLight3 = new t.DirectionalLight( 0xffffff, 0.8 );
+  directionalLight3.position.set( -0.5, -1, -0.5 );
+  scene.add( directionalLight3 );
 }
 
 
@@ -469,50 +440,6 @@ function checkWallCollision(v) {
   return map[c.x][c.z] > 0;
 }
 
-// Radar
-function drawRadar() {
-  var c = getMapSector(cam.position), context = document.getElementById('radar').getContext('2d');
-  context.font = '10px Helvetica';
-  for (var i = 0; i < mapW; i++) {
-    for (var j = 0, m = map[i].length; j < m; j++) {
-      var d = 0;
-      for (var k = 0, n = ai.length; k < n; k++) {
-        var e = getMapSector(ai[k].position);
-        if (i == e.x && j == e.z) {
-          d++;
-        }
-      }
-      if (i == c.x && j == c.z && d == 0) {
-        context.fillStyle = '#222';
-        context.beginPath();
-        context.arc(i * 10, j * 10, 5, 0, 2 * Math.PI, false);
-        context.fillStyle = 'black';
-        context.fill();
-        context.stroke();
-      }
-      else if (i == c.x && j == c.z) {
-        context.fillStyle = '#AA33FF';
-        context.fillRect(i * 10, j * 10, (i+1)*10, (j+1)*10);
-        context.fillStyle = '#000000';
-        context.fillText(''+d, i*10+8, j*10+12);
-      }
-      else if (d > 0 && d < 10) {
-        context.fillStyle = '#FF0000';
-        context.fillRect(i * 10, j * 10, (i+1)*10, (j+1)*10);
-        context.fillStyle = '#000000';
-        context.fillText(''+d, i*10+8, j*10+12);
-      }
-      else if (map[i][j] > 0) {
-        context.fillStyle = '#666666';
-        context.fillRect(i * 10, j * 10, (i+1)*10, (j+1)*10);
-      }
-      else {
-        context.fillStyle = '#CCCCCC';
-        context.fillRect(i * 10, j * 10, (i+1)*10, (j+1)*10);
-      }
-    }
-  }
-}
 
 var bullets = [];
 var sphereMaterial = new t.MeshBasicMaterial({color: 0x333333});
