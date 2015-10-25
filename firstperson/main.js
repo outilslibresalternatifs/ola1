@@ -127,34 +127,96 @@ function init() {
   var loader = new THREE.JSONLoader();
   var material = new THREE.MeshBasicMaterial({ color: 0x220000 });
 
-  // OLA
-  loader.load( "objects/ola.json", function( geometry) {
-    mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial({ color: 0x000fff }) );
-    mesh.scale.set(1,1,1);
-    mesh.position.x = 13;
-    mesh.position.y = 13;
-    mesh.position.z = 30;
-    scene.add( mesh );
-  });
-  // FORK
-  loader.load( "objects/teapot.js", function( geometry) {
-    mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial({ color: 0xff0000 }) );
-    mesh.scale.set(1,1,1);
-    mesh.position.x = 13;
-    mesh.position.y = 43;
-    mesh.position.z = 30;
-    scene.add( mesh );
-  });
   // FORK
   loader.load( "objects/fork.json", function( geometry) {
-    mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial({ color: 0x00000f }) );
+    mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial({ color: 0xff0000 }) );
     mesh.scale.set(1,1,1);
-    mesh.position.x = 13;
-    mesh.position.y = 43;
+    mesh.position.x = 20;
+    mesh.position.y = 50;
     mesh.position.z = 20;
     scene.add( mesh );
   });
-
+  // pantalon
+  loader.load( "objects/pantalon.json", function( geometry) {
+    mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial({ color: 0x00ff00 }) );
+    mesh.scale.set(1,1,1);
+    mesh.position.x = 100;
+    mesh.position.y = 50;
+    mesh.position.z = 0;
+    scene.add( mesh );
+  });
+  // julien
+  loader.load( "objects/forme.json", function( geometry) {
+    mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial({ color: 0xffff00 }) );
+    mesh.scale.set(1,1,1);
+    mesh.position.x = 200;
+    mesh.position.y = 50;
+    mesh.position.z = 0;
+    scene.add( mesh );
+  });
+  // nelson
+  loader.load( "objects/nelson.json", function( geometry) {
+    mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial({ color: 0x0000ff }) );
+    mesh.scale.set(1,1,1);
+    mesh.position.x = 300;
+    mesh.position.y = 50;
+    mesh.position.z = 0;
+    scene.add( mesh );
+  });
+  // dyson
+  loader.load( "objects/dyson.json", function( geometry) {
+    mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial({ color: 0x0f00ff }) );
+    mesh.scale.set(1,1,1);
+    mesh.position.x = -100;
+    mesh.position.y = 50;
+    mesh.position.z = 0;
+    scene.add( mesh );
+  });
+  // chaise
+  loader.load( "objects/chaise.json", function( geometry) {
+    mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial({ color: 0xff00ff }) );
+    mesh.scale.set(1,1,1);
+    mesh.position.x = -200;
+    mesh.position.y = 50;
+    mesh.position.z = 0;
+    scene.add( mesh );
+  });
+  // geographie
+  loader.load( "objects/geographie.json", function( geometry) {
+    mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial({ color: 0xff0044 }) );
+    mesh.scale.set(1,1,1);
+    mesh.position.x = -300;
+    mesh.position.y = 50;
+    mesh.position.z = 0;
+    scene.add( mesh );
+  });
+  // tower
+  loader.load( "objects/tower.json", function( geometry) {
+    mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial({ color: 0x0ff044 }) );
+    mesh.scale.set(1,1,1);
+    mesh.position.x = 0;
+    mesh.position.y = 50;
+    mesh.position.z = 100;
+    scene.add( mesh );
+  });
+  // AKP
+  loader.load( "objects/AKP.json", function( geometry) {
+    mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial({ color: 0x0ffff4 }) );
+    mesh.scale.set(1,1,1);
+    mesh.position.x = 0;
+    mesh.position.y = 50;
+    mesh.position.z = 200;
+    scene.add( mesh );
+  });
+  // AKP
+  loader.load( "objects/AKP.json", function( geometry) {
+    mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial({ color: 0x0ffff4 }) );
+    mesh.scale.set(1,1,1);
+    mesh.position.x = 0;
+    mesh.position.y = 50;
+    mesh.position.z = 200;
+    scene.add( mesh );
+  });
 } // end Init
 
 // Helper function for browser frames
