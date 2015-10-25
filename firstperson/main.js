@@ -34,7 +34,7 @@ var WIDTH = window.innerWidth,
   LIGHTCOLOR = 0xffffff;
   FOGCOLOR = 0xffffff;
   PROJECTILEDAMAGE = 20,
-  OBJECTS = ['objects/ola.json' ,'objects/teapot.js'];
+  OBJECTS = ['objects/ola.json' ,'objects/teapot.js' ,'objects/AKP.js'];
 //  OBJECTS = [{objet:'objects/ola.json',posx:1,posy:1,posz:1} ,'objects/teapot.js'];
 
 // Global vars
@@ -102,27 +102,43 @@ function init() {
   // Display HUD
   $('body').append('<canvas id="radar" width="100" height="100"></canvas>');
 
-  // Importer
-  for (var i = 0; i < OBJECTS.length; i++) {
-    var loader = new THREE.JSONLoader();
-    var material = new THREE.MeshBasicMaterial({ color: 0xff00ff });
-    var counter = i;
-    loadObjects(i);
-  }
+  // // Importer
+  // for (var i = 0; i < OBJECTS.length; i++) {
+  //   var loader = new THREE.JSONLoader();
+  //   var material = new THREE.MeshBasicMaterial({ color: 0x222222 });
+  //   var counter = i;
+  //   loadObjects(i);
+  // }
+  //
+  // function loadObjects (index){
+  //   loader.load( OBJECTS[index], function( geometry, materials, posx, posy, posz) {
+  //     var mesh = new THREE.Mesh( geometry, material );
+  //     mesh.scale.set(1,1,1);
+  //   console.log('index:',index);
+  //     mesh.position.x = posx = 3+index*200;
+  //     mesh.position.y = posy = 10;
+  //     mesh.position.z = posz = 3+index*2;
+  //     scene.add( mesh );
+  //     console.log(counter);
+  //   });
+  // }
 
-  function loadObjects (index){
-    loader.load( OBJECTS[index], function( geometry, materials, posx, posy, posz) {
-      var mesh = new THREE.Mesh( geometry, material );
-      mesh.scale.set(1,1,1);
-    console.log('index:',index);
-      mesh.position.x = posx = 3+index*200;
-      mesh.position.y = posy = 10;
-      mesh.position.z = posz = 3+index*2;
-      scene.add( mesh );
-      console.log(counter);
-    });
-  }
-}
+  // Importer
+
+  var loader = new THREE.JSONLoader();
+  var material = new THREE.MeshBasicMaterial({ color: 0x220000 });
+
+  // OLA
+  loader.load( "objects/ola.json", function( geometry) {
+    mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial({ color: 0xffffff }) );
+    mesh.scale.set(1,1,1);
+    mesh.position.x = 13;
+    mesh.position.y = 13;
+    mesh.position.z = 30;
+    scene.add( mesh );
+  });
+
+} // end Init
 
 // Helper function for browser frames
 function animate() {
