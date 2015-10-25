@@ -129,9 +129,11 @@ function init() {
     mesh.position.z = 0;
     scene.add( mesh );
   });
+
+  gouraudMaterial = new THREE.MeshLambertMaterial( { color: 0xffff00, shading: THREE.SmoothShading, side: THREE.DoubleSide } );
   // nelson
   loader.load( "objects/nelson.json", function( geometry) {
-    mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial({ color: 0x0000ff }) );
+    mesh = new THREE.Mesh( geometry, gouraudMaterial);
     mesh.scale.set(1,1,1);
     mesh.position.x = 300;
     mesh.position.y = 50;
