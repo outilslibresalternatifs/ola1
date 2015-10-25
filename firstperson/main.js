@@ -31,9 +31,11 @@ var WIDTH = window.innerWidth,
   FLOORCOLOR = 0xeeeeee,
   WALLCOLOR = 0xffffff,
   BGCOLOR = '#ff00',
-  LIGHTCOLOR = 0xffffff;
-  FOGCOLOR = 0xffffff;
-  PROJECTILEDAMAGE = 20;
+  LIGHTCOLOR = 0xffffff,
+  FOGCOLOR = 0xffffff,
+  PROJECTILEDAMAGE = 20,
+  CAM_RADIUS = 200,
+  CAM_STEP = .001;
 //  OBJECTS = [{objet:'objects/ola.json',posx:1,posy:1,posz:1} ,'objects/teapot.js'];
 
 // Global vars
@@ -41,6 +43,9 @@ var t = THREE, scene, cam, renderer, controls, clock, projector, model, skin;
 var runAnim = true, mouse = { x: 0, y: 0 }, kills = 0, health = 100;
 var healthCube, lastHealthPickup = 0;
 var scene;
+var objectPositions = [];
+var currentTarget = 0;
+var isFirstPerson = false;
 
 
 $(document).ready(function() {
@@ -49,7 +54,6 @@ $(document).ready(function() {
     e.preventDefault();
     $(this).fadeOut();
     init();
-    setInterval(drawRadar, 500);
     animate();
   });
 });
@@ -77,7 +81,7 @@ function init() {
   setupScene();
 
   // Handle drawing as WebGL (faster than Canvas but less supported)
-  renderer = new t.WebGLRenderer();
+  renderer = new t.WebGLRenderer({antialasing: true});
   renderer.setSize(WIDTH, HEIGHT);
 
   // Add the canvas to the document
@@ -110,6 +114,7 @@ function init() {
     mesh.position.y = 50;
     mesh.position.z = 20;
     scene.add( mesh );
+    objectPositions.push(mesh);
   });
   // pantalon
   loader.load( "objects/pantalon.json", function( geometry) {
@@ -119,6 +124,7 @@ function init() {
     mesh.position.y = 50;
     mesh.position.z = 0;
     scene.add( mesh );
+    objectPositions.push(mesh);
   });
   // julien
   loader.load( "objects/forme.json", function( geometry) {
@@ -128,6 +134,7 @@ function init() {
     mesh.position.y = 50;
     mesh.position.z = 0;
     scene.add( mesh );
+    objectPositions.push(mesh);
   });
 
   gouraudMaterial = new THREE.MeshLambertMaterial( { color: 0xffff00, shading: THREE.SmoothShading, side: THREE.DoubleSide } );
@@ -139,6 +146,7 @@ function init() {
     mesh.position.y = 50;
     mesh.position.z = 0;
     scene.add( mesh );
+    objectPositions.push(mesh);
   });
   // dyson
   loader.load( "objects/dyson.json", function( geometry) {
@@ -148,6 +156,7 @@ function init() {
     mesh.position.y = 50;
     mesh.position.z = 0;
     scene.add( mesh );
+    objectPositions.push(mesh);
   });
   // chaise
   loader.load( "objects/chaise.json", function( geometry) {
@@ -157,6 +166,7 @@ function init() {
     mesh.position.y = 50;
     mesh.position.z = 0;
     scene.add( mesh );
+    objectPositions.push(mesh);
   });
   // geographie
   loader.load( "objects/geographie.json", function( geometry) {
@@ -166,6 +176,7 @@ function init() {
     mesh.position.y = 50;
     mesh.position.z = 0;
     scene.add( mesh );
+    objectPositions.push(mesh);
   });
   // tower
   loader.load( "objects/tower.json", function( geometry) {
@@ -175,6 +186,7 @@ function init() {
     mesh.position.y = 50;
     mesh.position.z = 100;
     scene.add( mesh );
+    objectPositions.push(mesh);
   });
   // AKP
   loader.load( "objects/AKP.json", function( geometry) {
@@ -184,6 +196,7 @@ function init() {
     mesh.position.y = 50;
     mesh.position.z = 200;
     scene.add( mesh );
+    objectPositions.push(mesh);
   });
   // AKP
   loader.load( "objects/AKP.json", function( geometry) {
@@ -193,22 +206,50 @@ function init() {
     mesh.position.y = 50;
     mesh.position.z = 200;
     scene.add( mesh );
+    objectPositions.push(mesh);
   });
+  cam.position.y = 75;
 } // end Init
 
 // Helper function for browser frames
-function animate() {
+function animate(millis) {
   if (runAnim) {
     requestAnimationFrame(animate);
   }
-  render();
+  render(millis);
 }
 
+function updateCamera (millis){
+  var target = objectPositions[currentTarget];
+  cam.position.x = (target.position.x + CAM_RADIUS) * Math.cos(millis * CAM_STEP);
+  cam.position.z = (target.position.z + CAM_RADIUS) * Math.sin(millis * CAM_STEP);
+  cam.lookAt(target.position);
+
+  // every 10s (more or less ...)
+  if(millis % 10 < .017){
+    currentTarget = nextTarget();
+  }
+}
+
+function nextTarget (){
+  return ((currentTarget + 1) >= objectPositions.length) ? 0 : currentTarget + 1;
+}
+
+document.addEventListener('keyup', function (event){
+  if(event.keyCode == 70){ // 70 = F key
+    isFirstPerson = !isFirstPerson;
+  }
+});
+
 // Update and display
-function render() {
+function render(millis) {
   var delta = clock.getDelta(), speed = delta * BULLETMOVESPEED;
   var aispeed = delta * MOVESPEED;
-  controls.update(delta); // Move camera
+  if(isFirstPerson){
+    controls.update(delta); // Move camera
+  } else {
+    updateCamera(millis);
+  }
 
   // Rotate the health cube
   healthcube.rotation.x += 0.004
@@ -399,50 +440,6 @@ function checkWallCollision(v) {
   return map[c.x][c.z] > 0;
 }
 
-// Radar
-function drawRadar() {
-  var c = getMapSector(cam.position), context = document.getElementById('radar').getContext('2d');
-  context.font = '10px Helvetica';
-  for (var i = 0; i < mapW; i++) {
-    for (var j = 0, m = map[i].length; j < m; j++) {
-      var d = 0;
-      for (var k = 0, n = ai.length; k < n; k++) {
-        var e = getMapSector(ai[k].position);
-        if (i == e.x && j == e.z) {
-          d++;
-        }
-      }
-      if (i == c.x && j == c.z && d == 0) {
-        context.fillStyle = '#222';
-        context.beginPath();
-        context.arc(i * 10, j * 10, 5, 0, 2 * Math.PI, false);
-        context.fillStyle = 'black';
-        context.fill();
-        context.stroke();
-      }
-      else if (i == c.x && j == c.z) {
-        context.fillStyle = '#AA33FF';
-        context.fillRect(i * 10, j * 10, (i+1)*10, (j+1)*10);
-        context.fillStyle = '#000000';
-        context.fillText(''+d, i*10+8, j*10+12);
-      }
-      else if (d > 0 && d < 10) {
-        context.fillStyle = '#FF0000';
-        context.fillRect(i * 10, j * 10, (i+1)*10, (j+1)*10);
-        context.fillStyle = '#000000';
-        context.fillText(''+d, i*10+8, j*10+12);
-      }
-      else if (map[i][j] > 0) {
-        context.fillStyle = '#666666';
-        context.fillRect(i * 10, j * 10, (i+1)*10, (j+1)*10);
-      }
-      else {
-        context.fillStyle = '#CCCCCC';
-        context.fillRect(i * 10, j * 10, (i+1)*10, (j+1)*10);
-      }
-    }
-  }
-}
 
 var bullets = [];
 var sphereMaterial = new t.MeshBasicMaterial({color: 0x333333});
