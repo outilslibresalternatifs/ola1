@@ -23,12 +23,12 @@ var WIDTH = window.innerWidth,
   HEIGHT = window.innerHeight,
   ASPECT = WIDTH / HEIGHT,
   UNITSIZE = 250,
-  WALLHEIGHT = 400,
+  WALLHEIGHT = 700,
   MOVESPEED = 100,
   LOOKSPEED = 0.075,
   BULLETMOVESPEED = MOVESPEED * 5,
   NUMAI = 0,
-  FLOORCOLOR = 0xcccccc,
+  FLOORCOLOR = 0x888888,
   WALLCOLOR = 0xffffff,
   BGCOLOR = '#ff0000',
   LIGHTCOLOR = 0xffffff,
@@ -143,6 +143,21 @@ function init() {
     objectPositions.push(mesh);
     objects.push(mesh);
   });
+  // pantalon2
+  loader.load( "objects/pantalon2.json", function( geometry) {
+    mesh = new THREE.Mesh( geometry,new THREE.MeshLambertMaterial( { color:0xcccccc, shading: THREE.SmoothShading, side: THREE.DoubleSide } ) );
+    mesh.scale.set(4,4,4);
+    mesh.position.x = 100;
+    mesh.position.y = 50;
+    mesh.position.z = 0;
+    mesh.userData = { URL: "./objects/pantalon2.json"};
+    mesh.name = "Pantalon";
+    mesh.author = "Nom de l'auteur";
+    mesh.description = "Description de l'objet";
+    scene.add( mesh );
+    objectPositions.push(mesh);
+    objects.push(mesh);
+  });
   // julien
   loader.load( "objects/forme.json", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial );
@@ -162,9 +177,9 @@ function init() {
   // nelson
   loader.load( "objects/nelson.json", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial);
-    mesh.scale.set(4,4,4);
-    mesh.position.x = 700;
-    mesh.position.y = 50;
+    mesh.scale.set(10,10,10);
+    mesh.position.x = 00;
+    mesh.position.y = 00;
     mesh.position.z = 0;
      mesh.userData = { URL: "./objects/nelson.json"};
     mesh.name = "Nelson";
@@ -236,29 +251,15 @@ function init() {
     objectPositions.push(mesh);
     objects.push(mesh);
   });
+
   // AKP
-  loader.load( "objects/AKP.json", function( geometry) {
-    mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    mesh.scale.set(4,4,4);
-    mesh.position.x = 0;
-    mesh.position.y = 50;
-    mesh.position.z = 200;
-     mesh.userData = { URL: "./objects/AKP.json"};
-    mesh.name = "AKP";
-    mesh.author = "Nom de l'auteur";
-    mesh.description = "Description de l'objet";
-    scene.add( mesh );
-    objectPositions.push(mesh);
-    objects.push(mesh);
-  });
-  // AKP
-  loader.load( "objects/powerplant.json", function( geometry) {
+  loader.load( "objects/AK-P.json", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial );
     mesh.scale.set(1,1,1);
     mesh.position.x = 100;
     mesh.position.y = 50;
     mesh.position.z = 200;
-     mesh.userData = { URL: "./objects/AKP.json"};
+     mesh.userData = { URL: "./objects/AK-P.json"};
     mesh.name = "AKP2";
     mesh.author = "Nom de l'auteur";
     mesh.description = "Description de l'objet";
@@ -386,7 +387,7 @@ function setupScene() {
   // Geometry: floor
   var floor = new t.Mesh(
       new t.CubeGeometry(units * UNITSIZE, 10, units * UNITSIZE),
-      new t.MeshLambertMaterial({color: FLOORCOLOR})
+      new THREE.MeshLambertMaterial( { color:FLOORCOLOR, shading: THREE.SmoothShading, side: THREE.DoubleSide } )
   );
   scene.add(floor);
 
@@ -425,8 +426,8 @@ function setupScene() {
   var directionalLight2 = new t.DirectionalLight( 0xff00ff, 0.8 );
   directionalLight2.position.set( 100, 100, -300 );
   scene.add( directionalLight2 );
-  var directionalLight3 = new t.DirectionalLight( 0x00ff00, 0.8 );
-  directionalLight3.position.set( -300, 100, -100 );
+  var directionalLight3 = new t.DirectionalLight( 0xffff00, 0.8 );
+  directionalLight3.position.set( -700, 300, -100 );
   scene.add( directionalLight3 );
 }
 
@@ -546,7 +547,7 @@ function onDocumentMouseDown(event) {
   );
   vector.unproject(cam);
 
-  var ray = new THREE.Raycaster( cam.position, 
+  var ray = new THREE.Raycaster( cam.position,
                            vector.sub( cam.position ).normalize() );
 
   var intersects = ray.intersectObjects(objects);
