@@ -121,10 +121,10 @@ function init() {
   // FORK
   loader.load( "objects/fork.json", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial);
-    mesh.scale.set(4,4,4);
+    mesh.scale.set(10,10,10);
     mesh.position.x = 20;
-    mesh.position.y = 50;
-    mesh.position.z = 20;
+    mesh.position.y = 0;
+    mesh.position.z = -200;
     mesh.userData = { URL: "./objects/fork.json"};
     mesh.name = "Fourchette";
     mesh.author = "Nom de l'auteur";
@@ -164,14 +164,14 @@ function init() {
     objects.push(mesh);
   });
   // julien
-  loader.load( "objects/forme.json", function( geometry) {
+  loader.load( "objects/julien.json", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial );
     mesh.scale.set(4,4,4);
     mesh.position.x = 400;
     mesh.position.y = 50;
     mesh.position.z = 0;
-    mesh.userData = { URL: "./objects/forme.json"};
-    mesh.name = "Forme";
+    mesh.userData = { URL: "./objects/julien.json"};
+    mesh.name = "Julien";
     mesh.author = "Nom de l'auteur";
     mesh.description = "Description de l'objet";
     scene.add( mesh );
@@ -182,10 +182,10 @@ function init() {
   // nelson
   loader.load( "objects/nelson.json", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial);
-    mesh.scale.set(10,10,10);
-    mesh.position.x = 00;
-    mesh.position.y = 00;
-    mesh.position.z = 0;
+    mesh.scale.set(24.5,24.5,24.5);
+    mesh.position.x = 0;
+    mesh.position.y = 0;
+    mesh.position.z = 6;
      mesh.userData = { URL: "./objects/nelson.json"};
     mesh.name = "Nelson";
     mesh.author = "Nom de l'auteur";
@@ -210,11 +210,11 @@ function init() {
     objects.push(mesh);
   });
   // chaise
-  loader.load( "objects/chaise2.json", function( geometry) {
+  loader.load( "objects/chaise.json", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    mesh.scale.set(4,4,4);
-    mesh.position.x = 00;
-    mesh.position.y = 50;
+    mesh.scale.set(6,6,4);
+    mesh.position.x = 300;
+    mesh.position.y = 30;
     mesh.position.z = 0;
      mesh.userData = { URL: "./objects/chaise.json"};
     mesh.name = "Chaise";
@@ -242,14 +242,14 @@ function init() {
     objects.push(mesh);
   });
   // tower
-  loader.load( "objects/tower.json", function( geometry) {
+  loader.load( "objects/hugo-totems.json", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial );
     mesh.scale.set(4,4,4);
-    mesh.position.x = 0;
-    mesh.position.y = 50;
+    mesh.position.x = 700;
+    mesh.position.y = 0;
     mesh.position.z = 100;
-     mesh.userData = { URL: "./objects/tower.json"};
-    mesh.name = "Tower";
+     mesh.userData = { URL: "./objects/hugo-totems.json"};
+    mesh.name = "Totems";
     mesh.author = "Nom de l'auteur";
     mesh.description = "Description de l'objet";
     scene.add( mesh );
@@ -260,7 +260,7 @@ function init() {
   // AKP
   loader.load( "objects/AK-P.json", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    mesh.scale.set(1,1,1);
+    mesh.scale.set(3,3,3);
     mesh.position.x = 100;
     mesh.position.y = 50;
     mesh.position.z = 200;
@@ -273,6 +273,58 @@ function init() {
     objectPositions.push(mesh);
     objects.push(mesh);
   });
+
+  // birdman
+  loader.load( "objects/AK-P.json", function( geometry) {
+    mesh = new THREE.Mesh( geometry, gouraudMaterial );
+    mesh.scale.set(3,3,3);
+    mesh.position.x = 100;
+    mesh.position.y = 50;
+    mesh.position.z = 200;
+     mesh.userData = { URL: "./objects/birdman.json"};
+    mesh.name = "Birdman";
+    mesh.author = "Nom de l'auteur";
+    mesh.description = "Description de l'objet";
+    mesh.position.z = 700;
+    scene.add( mesh );
+    objectPositions.push(mesh);
+    objects.push(mesh);
+  });
+
+  // powerplant
+  loader.load( "objects/powerplant.json", function( geometry) {
+    mesh = new THREE.Mesh( geometry, gouraudMaterial );
+    mesh.scale.set(3,3,3);
+    mesh.position.x = 100;
+    mesh.position.y = 50;
+    mesh.position.z = 200;
+     mesh.userData = { URL: "./objects/powerplant.json"};
+    mesh.name = "Powerplant";
+    mesh.author = "Nom de l'auteur";
+    mesh.description = "Description de l'objet";
+    mesh.position.z = 700;
+    scene.add( mesh );
+    objectPositions.push(mesh);
+    objects.push(mesh);
+  });
+
+  // Louis
+  loader.load( "objects/Louis.json", function( geometry) {
+    mesh = new THREE.Mesh( geometry, gouraudMaterial );
+    mesh.scale.set(3,3,3);
+    mesh.position.x = 100;
+    mesh.position.y = 50;
+    mesh.position.z = 200;
+     mesh.userData = { URL: "./objects/louis.json"};
+    mesh.name = "Machine à clous";
+    mesh.author = "Nom de l'auteur";
+    mesh.description = "Description de l'objet";
+    mesh.position.z = 700;
+    scene.add( mesh );
+    objectPositions.push(mesh);
+    objects.push(mesh);
+  });
+
   cam.position.y = 75;
 } // end Init
 
