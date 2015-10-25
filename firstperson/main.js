@@ -536,8 +536,6 @@ function onDocumentMouseDown(event) {
   //affiche le cartel
   var container = document.getElementById("container");
   var $cartel = $("#cartel");
-  container.style.display= "block";
-  $cartel.empty();
 
   var vector = new THREE.Vector3(
       ( event.clientX / window.innerWidth ) * 2 - 1,
@@ -552,6 +550,8 @@ function onDocumentMouseDown(event) {
   var intersects = ray.intersectObjects(objects);
 
   if ( intersects.length > 0 ) {
+    container.style.display= "block";
+    $cartel.empty();
     var content = "<h2>"+intersects[0].object.name+"</h2><h2>"+intersects[0].object.author+"</h2><p>"+intersects[0].object.description+"</p><a href='"+intersects[0].object.userData.URL+"' alt='"+intersects[0].object.name+"'/>Fichier source</a>";
     $cartel.append(content);
     //window.open(intersects[0].object.userData.URL);
