@@ -34,7 +34,9 @@ var WIDTH = window.innerWidth,
   LIGHTCOLOR = 0xffffff;
   FOGCOLOR = 0xffffff;
   PROJECTILEDAMAGE = 20,
-  OBJECTS = ['objects/ola.json' ,'objects/teapot.js' ,'objects/AKP.js'];
+  OBJECTS = ['objects/ola.json' ,'objects/teapot.js' ,'objects/AKP.js'],
+  CAM_RADIUS = 200,
+  CAM_STEP = .001;
 //  OBJECTS = [{objet:'objects/ola.json',posx:1,posy:1,posz:1} ,'objects/teapot.js'];
 
 // Global vars
@@ -42,6 +44,9 @@ var t = THREE, scene, cam, renderer, controls, clock, projector, model, skin;
 var runAnim = true, mouse = { x: 0, y: 0 }, kills = 0, health = 100;
 var healthCube, lastHealthPickup = 0;
 var scene;
+var objectPositions = [];
+var currentTarget = 0;
+var isFirstPerson = false;
 
 
 $(document).ready(function() {
@@ -81,7 +86,7 @@ function init() {
   setupAI();
 
   // Handle drawing as WebGL (faster than Canvas but less supported)
-  renderer = new t.WebGLRenderer();
+  renderer = new t.WebGLRenderer({antialasing: true});
   renderer.setSize(WIDTH, HEIGHT);
 
   // Add the canvas to the document
@@ -130,29 +135,67 @@ function init() {
 
   // OLA
   loader.load( "objects/ola.json", function( geometry) {
-    mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial({ color: 0xffffff }) );
+    mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial({ color: 0xff0000 }) );
     mesh.scale.set(1,1,1);
     mesh.position.x = 13;
     mesh.position.y = 13;
     mesh.position.z = 30;
+    objectPositions.push(mesh);
     scene.add( mesh );
   });
 
+  // OLA
+  loader.load( "objects/teapot.js", function( geometry) {
+    mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial({ color: 0x00FF00 }) );
+    mesh.scale.set(1,1,1);
+    mesh.position.x = 300;
+    mesh.position.y = 15;
+    mesh.position.z = 200;
+    objectPositions.push(mesh);
+    scene.add( mesh );
+  });
+  cam.position.y = 75;
 } // end Init
 
 // Helper function for browser frames
-function animate() {
+function animate(millis) {
   if (runAnim) {
     requestAnimationFrame(animate);
   }
-  render();
+  render(millis);
 }
 
+function updateCamera (millis){
+  var target = objectPositions[currentTarget];
+  cam.position.x = (target.position.x + CAM_RADIUS) * Math.cos(millis * CAM_STEP);
+  cam.position.z = (target.position.z + CAM_RADIUS) * Math.sin(millis * CAM_STEP);
+  cam.lookAt(target.position);
+
+  // every 10s (more or less ...)
+  if(millis % 10 < .017){
+    currentTarget = nextTarget();
+  }
+}
+
+function nextTarget (){
+  return ((currentTarget + 1) >= objectPositions.length) ? 0 : currentTarget + 1;
+}
+
+document.addEventListener('keyup', function (event){
+  if(event.keyCode == 70){ // 70 = F key
+    isFirstPerson = !isFirstPerson;
+  }
+});
+
 // Update and display
-function render() {
+function render(millis) {
   var delta = clock.getDelta(), speed = delta * BULLETMOVESPEED;
   var aispeed = delta * MOVESPEED;
-  controls.update(delta); // Move camera
+  if(isFirstPerson){
+    controls.update(delta); // Move camera
+  } else {
+    updateCamera(millis);
+  }
 
   // Rotate the health cube
   healthcube.rotation.x += 0.004
