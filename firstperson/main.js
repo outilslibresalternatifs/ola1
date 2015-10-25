@@ -28,7 +28,7 @@ var WIDTH = window.innerWidth,
   LOOKSPEED = 0.075,
   BULLETMOVESPEED = MOVESPEED * 5,
   NUMAI = 0,
-  FLOORCOLOR = 0x111111,
+  FLOORCOLOR = 0xcccccc,
   WALLCOLOR = 0xffffff,
   BGCOLOR = '#ff0000',
   LIGHTCOLOR = 0xffffff,
@@ -356,17 +356,17 @@ function setupScene() {
   //scene.add(healthcube);
 
   // Lighting
-  var directionalLight1 = new t.DirectionalLight( LIGHTCOLOR, 0.9 );
-  directionalLight1.position.set( 1, 30, 1 );
+  var directionalLight1 = new t.DirectionalLight( 0xffffff, 1 );
+  directionalLight1.position.set( 0, 100, 0 );
   scene.add( directionalLight1 );
-  var directionalLight2 = new t.DirectionalLight( LIGHTCOLOR, 0.9 );
-  directionalLight2.position.set( 0.1, .1, .1 );
+  var directionalLight2 = new t.DirectionalLight( 0x0000ff, 0.8 );
+  directionalLight2.position.set( 100, 100, 300 );
   scene.add( directionalLight2 );
-  var directionalLight2 = new t.DirectionalLight( LIGHTCOLOR, 0.9 );
-  directionalLight2.position.set( -0.5, 30, -0.5 );
+  var directionalLight2 = new t.DirectionalLight( 0xff00ff, 0.8 );
+  directionalLight2.position.set( 100, 100, -300 );
   scene.add( directionalLight2 );
-  var directionalLight3 = new t.DirectionalLight( 0xffffff, 0.8 );
-  directionalLight3.position.set( -0.5, -1, -0.5 );
+  var directionalLight3 = new t.DirectionalLight( 0x00ff00, 0.8 );
+  directionalLight3.position.set( -300, 100, -100 );
   scene.add( directionalLight3 );
 }
 
