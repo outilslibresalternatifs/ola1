@@ -14,7 +14,7 @@ var map = [ // 1  2  3  4  5  6  7  8  9
            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1,], // 5
            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1,], // 6
            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1,], // 7
-           [1, 0, 0, 0, 0, 0, 1, 0, 0, 1,], // 8
+           [1, 0, 0, 0, 0, 0, 0, 0, 0, 1,], // 8
            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1,], // 9
            ], mapW = map.length, mapH = map[0].length;
 
@@ -35,8 +35,7 @@ var WIDTH = window.innerWidth,
   FOGCOLOR = 0xffffff,
   PROJECTILEDAMAGE = 20,
   CAM_RADIUS = 100,
-  CAM_STEP = .0005,
-  OBJECTS = ['objects/ola.json' ,'objects/teapot.js' ,'objects/AKP.js'];
+  CAM_STEP = .0005;
 
 // Global vars
 var t = THREE, scene, cam, renderer, controls, clock, projector, model, skin;
@@ -242,12 +241,12 @@ function init() {
     objects.push(mesh);
   });
   // tower
-  loader.load( "objects/hugo-totems.json", function( geometry) {
+  loader.load( "objects/hugo-totems.js", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    mesh.scale.set(4,4,4);
-    mesh.position.x = 700;
-    mesh.position.y = 0;
-    mesh.position.z = 100;
+    mesh.scale.set(10,10,10);
+    mesh.position.x = 600;
+    mesh.position.y = 10;
+    mesh.position.z = -500;
      mesh.userData = { URL: "./objects/hugo-totems.json"};
     mesh.name = "Totems";
     mesh.author = "Nom de l'auteur";
@@ -275,7 +274,7 @@ function init() {
   });
 
   // birdman
-  loader.load( "objects/AK-P.json", function( geometry) {
+  loader.load( "objects/birdman.json", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial );
     mesh.scale.set(3,3,3);
     mesh.position.x = 100;
@@ -309,7 +308,7 @@ function init() {
   });
 
   // Louis
-  loader.load( "objects/Louis.json", function( geometry) {
+  loader.load( "objects/louis.json", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial );
     mesh.scale.set(3,3,3);
     mesh.position.x = 100;
@@ -325,6 +324,40 @@ function init() {
     objects.push(mesh);
   });
 
+  // Jules
+  loader.load( "objects/jules.js", function( geometry) {
+    mesh = new THREE.Mesh( geometry, gouraudMaterial );
+    mesh.scale.set(3,3,3);
+    mesh.position.x = 100;
+    mesh.position.y = 50;
+    mesh.position.z = 200;
+     mesh.userData = { URL: "./objects/jules.js"};
+    mesh.name = "Jules";
+    mesh.author = "Nom de l'auteur";
+    mesh.description = "Description de l'objet";
+    mesh.position.z = 700;
+    scene.add( mesh );
+    objectPositions.push(mesh);
+    objects.push(mesh);
+  });
+
+
+  // Jules
+  loader.load( "objects/micro-reality_ivan.js", function( geometry) {
+    mesh = new THREE.Mesh( geometry, gouraudMaterial );
+    mesh.scale.set(3,3,3);
+    mesh.position.x = 100;
+    mesh.position.y = 50;
+    mesh.position.z = 200;
+     mesh.userData = { URL: "./objects/micro-reality_ivan.js"};
+    mesh.name = "Jules";
+    mesh.author = "Nom de l'auteur";
+    mesh.description = "Description de l'objet";
+    mesh.position.z = 700;
+    scene.add( mesh );
+    objectPositions.push(mesh);
+    objects.push(mesh);
+  });
   cam.position.y = 75;
 } // end Init
 
