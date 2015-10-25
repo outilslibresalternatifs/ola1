@@ -45,7 +45,8 @@ var healthCube, lastHealthPickup = 0;
 var scene;
 var objectPositions = [];
 var currentTarget = 0;
-var isFirstPerson = false;
+var isFirstPerson = true;
+var objects = [];
 
 
 $(document).ready(function() {
@@ -91,12 +92,19 @@ function init() {
   // Track mouse position so we know where to shoot
   document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 
+  //Click on object
+  document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+
   // Shoot on click
   $(document).click(function(e) {
     e.preventDefault;
     if (e.which === 1) { // Left click only
       //createBullet();
     }
+  });
+
+  $("#container").on("click",function(){
+    $(this).hide();
   });
 
   // Display HUD
@@ -113,8 +121,13 @@ function init() {
     mesh.position.x = 20;
     mesh.position.y = 50;
     mesh.position.z = 20;
+    mesh.userData = { URL: "./objects/fork.json"};
+    mesh.name = "Fourchette";
+    mesh.author = "Nom de l'auteur";
+    mesh.description = "Description de l'objet";
     scene.add( mesh );
     objectPositions.push(mesh);
+    objects.push(mesh);
   });
   // pantalon
   loader.load( "objects/pantalon.json", function( geometry) {
@@ -123,8 +136,13 @@ function init() {
     mesh.position.x = 100;
     mesh.position.y = 50;
     mesh.position.z = 0;
+    mesh.userData = { URL: "./objects/pantalon.json"};
+    mesh.name = "Pantalon";
+    mesh.author = "Nom de l'auteur";
+    mesh.description = "Description de l'objet";
     scene.add( mesh );
     objectPositions.push(mesh);
+    objects.push(mesh);
   });
   // julien
   loader.load( "objects/forme.json", function( geometry) {
@@ -133,8 +151,13 @@ function init() {
     mesh.position.x = 200;
     mesh.position.y = 50;
     mesh.position.z = 0;
+    mesh.userData = { URL: "./objects/forme.json"};
+    mesh.name = "Forme";
+    mesh.author = "Nom de l'auteur";
+    mesh.description = "Description de l'objet";
     scene.add( mesh );
     objectPositions.push(mesh);
+    objects.push(mesh);
   });
 
   gouraudMaterial = new THREE.MeshLambertMaterial( { color: 0xffff00, shading: THREE.SmoothShading, side: THREE.DoubleSide } );
@@ -145,8 +168,13 @@ function init() {
     mesh.position.x = 300;
     mesh.position.y = 50;
     mesh.position.z = 0;
+     mesh.userData = { URL: "./objects/nelson.json"};
+    mesh.name = "Nelson";
+    mesh.author = "Nom de l'auteur";
+    mesh.description = "Description de l'objet";
     scene.add( mesh );
     objectPositions.push(mesh);
+    objects.push(mesh);
   });
   // dyson
   loader.load( "objects/dyson.json", function( geometry) {
@@ -155,8 +183,13 @@ function init() {
     mesh.position.x = -100;
     mesh.position.y = 50;
     mesh.position.z = 0;
+    mesh.userData = { URL: "./objects/dyson.json"};
+    mesh.name = "Dyson";
+    mesh.author = "Nom de l'auteur";
+    mesh.description = "Description de l'objet";
     scene.add( mesh );
     objectPositions.push(mesh);
+    objects.push(mesh);
   });
   // chaise
   loader.load( "objects/chaise.json", function( geometry) {
@@ -165,8 +198,13 @@ function init() {
     mesh.position.x = -200;
     mesh.position.y = 50;
     mesh.position.z = 0;
+     mesh.userData = { URL: "./objects/chaise.json"};
+    mesh.name = "Chaise";
+    mesh.author = "Nom de l'auteur";
+    mesh.description = "Description de l'objet";
     scene.add( mesh );
     objectPositions.push(mesh);
+    objects.push(mesh);
   });
   // geographie
   loader.load( "objects/geographie.json", function( geometry) {
@@ -175,8 +213,13 @@ function init() {
     mesh.position.x = -300;
     mesh.position.y = 50;
     mesh.position.z = 0;
+     mesh.userData = { URL: "./objects/geographie.json"};
+    mesh.name = "Geo";
+    mesh.author = "Nom de l'auteur";
+    mesh.description = "Description de l'objet";
     scene.add( mesh );
     objectPositions.push(mesh);
+    objects.push(mesh);
   });
   // tower
   loader.load( "objects/tower.json", function( geometry) {
@@ -185,8 +228,13 @@ function init() {
     mesh.position.x = 0;
     mesh.position.y = 50;
     mesh.position.z = 100;
+     mesh.userData = { URL: "./objects/tower.json"};
+    mesh.name = "Tower";
+    mesh.author = "Nom de l'auteur";
+    mesh.description = "Description de l'objet";
     scene.add( mesh );
     objectPositions.push(mesh);
+    objects.push(mesh);
   });
   // AKP
   loader.load( "objects/AKP.json", function( geometry) {
@@ -195,8 +243,13 @@ function init() {
     mesh.position.x = 0;
     mesh.position.y = 50;
     mesh.position.z = 200;
+     mesh.userData = { URL: "./objects/AKP.json"};
+    mesh.name = "AKP";
+    mesh.author = "Nom de l'auteur";
+    mesh.description = "Description de l'objet";
     scene.add( mesh );
     objectPositions.push(mesh);
+    objects.push(mesh);
   });
   // AKP
   loader.load( "objects/AKP.json", function( geometry) {
@@ -205,8 +258,13 @@ function init() {
     mesh.position.x = 0;
     mesh.position.y = 50;
     mesh.position.z = 200;
+     mesh.userData = { URL: "./objects/AKP.json"};
+    mesh.name = "AKP2";
+    mesh.author = "Nom de l'auteur";
+    mesh.description = "Description de l'objet";
     scene.add( mesh );
     objectPositions.push(mesh);
+    objects.push(mesh);
   });
   cam.position.y = 75;
 } // end Init
@@ -471,6 +529,38 @@ function createBullet(obj) {
   scene.add(sphere);
   return sphere;
 }
+
+//Au click sur un objet
+function onDocumentMouseDown(event) {
+
+  event.preventDefault();
+
+  //affiche le cartel
+  var container = document.getElementById("container");
+  var $cartel = $("#cartel");
+  container.style.display= "block";
+  $cartel.empty();
+
+  var vector = new THREE.Vector3(
+      ( event.clientX / window.innerWidth ) * 2 - 1,
+    - ( event.clientY / window.innerHeight ) * 2 + 1,
+      0.5
+  );
+  vector.unproject(cam);
+
+  var ray = new THREE.Raycaster( cam.position, 
+                           vector.sub( cam.position ).normalize() );
+
+  var intersects = ray.intersectObjects(objects);
+
+  if ( intersects.length > 0 ) {
+    var content = "<h2>"+intersects[0].object.name+"</h2><h2>"+intersects[0].object.author+"</h2><p>"+intersects[0].object.description+"</p><a href='"+intersects[0].object.userData.URL+"' alt='"+intersects[0].object.name+"'/>Fichier source</a>";
+    $cartel.append(content);
+    //window.open(intersects[0].object.userData.URL);
+  }
+}
+
+
 
 
 function onDocumentMouseMove(e) {
