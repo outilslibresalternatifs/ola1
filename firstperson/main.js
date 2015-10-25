@@ -74,7 +74,7 @@ function init() {
   controls = new t.FirstPersonControls(cam);
   controls.movementSpeed = MOVESPEED;
   controls.lookSpeed = LOOKSPEED;
-  controls.lookVertical = false; // Temporary solution; play on flat surfaces only
+  controls.lookVertical = true; // Temporary solution; play on flat surfaces only
   controls.noFly = true;
 
   // World objects
@@ -292,6 +292,7 @@ function updateCamera (millis){
   // every 10s (more or less ...)
   if(millis % 10 < .017){
     currentTarget = nextTarget();
+    fillCartel(objectPositions[currentTarget]);
   }
 }
 
@@ -299,9 +300,36 @@ function nextTarget (){
   return ((currentTarget + 1) >= objectPositions.length) ? 0 : currentTarget + 1;
 }
 
+function showCartel (){
+  var container = document.getElementById("container");
+  var $cartel = $("#cartel");
+  container.style.display = 'block';
+}
+
+function hideCartel (){
+  var container = document.getElementById("container");
+  var $cartel = $("#cartel");
+  container.style.display = 'none';
+}
+
+function fillCartel (object){
+  var container = document.getElementById("container");
+  var $cartel = $("#cartel");
+  $cartel.empty();
+  var content = "<h2>"+object.name+"</h2><h3>"+object.author+"</h3><p>"+object.description+"</p><a href='"+object.userData.URL+"' alt='"+object.name+"'>Fichier source</a>";
+  $cartel.append(content);
+}
+
 document.addEventListener('keyup', function (event){
   if(event.keyCode == 70){ // 70 = F key
     isFirstPerson = !isFirstPerson;
+    if(!isFirstPerson){
+      showCartel();
+      currentTarget = nextTarget();
+      fillCartel(objectPositions[currentTarget]);
+    } else {
+      hideCartel();
+    }
   }
 });
 
@@ -549,7 +577,7 @@ function onDocumentMouseDown(event) {
   );
   vector.unproject(cam);
 
-  var ray = new THREE.Raycaster( cam.position, 
+  var ray = new THREE.Raycaster( cam.position,
                            vector.sub( cam.position ).normalize() );
 
   var intersects = ray.intersectObjects(objects);
@@ -557,7 +585,7 @@ function onDocumentMouseDown(event) {
   if ( intersects.length > 0 ) {
     container.style.display= "block";
     $cartel.empty();
-    var content = "<h2>"+intersects[0].object.name+"</h2><h2>"+intersects[0].object.author+"</h2><p>"+intersects[0].object.description+"</p><a href='"+intersects[0].object.userData.URL+"' alt='"+intersects[0].object.name+"'>Fichier source</a>";
+    var content = "<h2>"+intersects[0].object.name+"</h2><h3>"+intersects[0].object.author+"</h3><p>"+intersects[0].object.description+"</p><a href='"+intersects[0].object.userData.URL+"' alt='"+intersects[0].object.name+"'>Fichier source</a>";
     $cartel.append(content);
   }
 }

@@ -4,58 +4,7 @@
   <meta charset=utf-8 />
   <title>OLA #1 : Le Palais des Outils Loufoques</title>
   <link rel="stylesheet" href="font/ola-sans.css">
-  <style>
-    html {box-sizing: border-box;}
-    *, *:before, *:after {box-sizing: inherit;}
-    body {
-      background-image: #888;
-      cursor: crosshair;
-      font-family: ola_sans, arial;
-      margin: 0;
-      overflow: hidden;
-      padding: 0;
-      -webkit-touch-callout: none;
-      -webkit-user-select: none;
-      -khtml-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-    }
-
-    #radar {
-      bottom: 10px;
-      left: 10px;
-      position: absolute;
-      z-index: 100;
-    }
-    #intro {
-      background-color: #000000;
-      color: #FFFFFF;
-      cursor: pointer;
-      padding-top: 40vh;
-      font-size: 32px;
-      text-align: center;
-      z-index: 1001;
-    }
-
-    #container{
-      position:fixed;
-      width: 100%;
-      height:100%;
-      display: none;
-    }
-    #cartel{
-      width: 30%;
-      height: 50%;
-      position: absolute;
-      left:50%;
-      top:50%;
-      margin-top: -15%;
-      margin-left: -15%;
-      background-color: #FFF;
-    }
-
-  </style>
+  <link rel="stylesheet" href="style.css" media="screen" title="no title" charset="utf-8">
   <script src="js/jquery-1.7.2.min.js"></script>
   <script src="js/three.min.js"></script>
   <script src="js/Three.FirstPersonControls.js"></script>
@@ -64,9 +13,10 @@
 <body>
 
   <div id="container">
-      <div id="cartel"></div>    
+      <div id="cartel"></div>
   </div>
-
-
+  <div class="logo">
+    <h1>OLA</h1>
+  </div>
 </body>
 </html>
