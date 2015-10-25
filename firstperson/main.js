@@ -45,7 +45,7 @@ var healthCube, lastHealthPickup = 0;
 var scene;
 var objectPositions = [];
 var currentTarget = 0;
-var isFirstPerson = false;
+var isFirstPerson = true;
 
 
 $(document).ready(function() {
@@ -104,12 +104,12 @@ function init() {
 
   // Importer
   var loader = new THREE.JSONLoader();
-  var gouraudMaterial = new THREE.MeshLambertMaterial( { color: 0xcccccc, shading: THREE.SmoothShading, side: THREE.DoubleSide } );
+  var gouraudMaterial = new THREE.MeshLambertMaterial( { color:0xFFFFFF, shading: THREE.SmoothShading, side: THREE.DoubleSide } );
 
   // FORK
   loader.load( "objects/fork.json", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial);
-    mesh.scale.set(1,1,1);
+    mesh.scale.set(4,4,4);
     mesh.position.x = 20;
     mesh.position.y = 50;
     mesh.position.z = 20;
@@ -119,7 +119,7 @@ function init() {
   // pantalon
   loader.load( "objects/pantalon.json", function( geometry) {
     mesh = new THREE.Mesh( geometry,gouraudMaterial );
-    mesh.scale.set(1,1,1);
+    mesh.scale.set(4,4,4);
     mesh.position.x = 100;
     mesh.position.y = 50;
     mesh.position.z = 0;
@@ -129,7 +129,7 @@ function init() {
   // julien
   loader.load( "objects/forme.json", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    mesh.scale.set(1,1,1);
+    mesh.scale.set(4,4,4);
     mesh.position.x = 400;
     mesh.position.y = 50;
     mesh.position.z = 0;
@@ -140,7 +140,7 @@ function init() {
   // nelson
   loader.load( "objects/nelson.json", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial);
-    mesh.scale.set(1,1,1);
+    mesh.scale.set(4,4,4);
     mesh.position.x = 700;
     mesh.position.y = 50;
     mesh.position.z = 0;
@@ -150,7 +150,7 @@ function init() {
   // dyson
   loader.load( "objects/dyson.json", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    mesh.scale.set(1,1,1);
+    mesh.scale.set(4,4,4);
     mesh.position.x = -400;
     mesh.position.y = 50;
     mesh.position.z = 0;
@@ -160,8 +160,8 @@ function init() {
   // chaise
   loader.load( "objects/chaise2.json", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    mesh.scale.set(1,1,1);
-    mesh.position.x = -200;
+    mesh.scale.set(4,4,4);
+    mesh.position.x = 00;
     mesh.position.y = 50;
     mesh.position.z = -500;
     scene.add( mesh );
@@ -170,7 +170,7 @@ function init() {
   // geographie
   loader.load( "objects/geographie.json", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    mesh.scale.set(1,1,1);
+    mesh.scale.set(4,4,4);
     mesh.position.x = -600;
     mesh.position.y = 50;
     mesh.position.z = 400;
@@ -180,7 +180,7 @@ function init() {
   // tower
   loader.load( "objects/tower.json", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    mesh.scale.set(1,1,1);
+    mesh.scale.set(4,4,4);
     mesh.position.x = 0;
     mesh.position.y = 50;
     mesh.position.z = 100;
@@ -190,7 +190,7 @@ function init() {
   // AKP
   loader.load( "objects/AKP.json", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    mesh.scale.set(1,1,1);
+    mesh.scale.set(4,4,4);
     mesh.position.x = 0;
     mesh.position.y = 50;
     mesh.position.z = 200;
@@ -198,12 +198,12 @@ function init() {
     objectPositions.push(mesh);
   });
   // AKP
-  loader.load( "objects/AKP.json", function( geometry) {
+  loader.load( "objects/powerplant.json", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial );
     mesh.scale.set(1,1,1);
-    mesh.position.x = 800;
+    mesh.position.x = 100;
     mesh.position.y = 50;
-    mesh.position.z = 200;
+    mesh.position.z = 700;
     scene.add( mesh );
     objectPositions.push(mesh);
   });
@@ -315,8 +315,6 @@ function render(millis) {
       b.translateZ(speed * d.z);
     }
   }
-
-
   renderer.render(scene, cam); // Repaint
 
 }
@@ -336,8 +334,7 @@ function setupScene() {
   var cube = new t.CubeGeometry(UNITSIZE, WALLHEIGHT, UNITSIZE);
   var materials = [
 
-                   new t.MeshLambertMaterial({color: WALLCOLOR}),
-                   ];
+ new t.MeshLambertMaterial({color: WALLCOLOR})];
   for (var i = 0; i < mapW; i++) {
     for (var j = 0, m = map[i].length; j < m; j++) {
       if (map[i][j]) {
