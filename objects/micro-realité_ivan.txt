@@ -1,0 +1,6 @@
+AUTEUR : Ivan Murit
+
+NOM DU PROJET : Micro-realité
+
+DESCRIPTION :
+Dispositif pour casque deréalité virtuelle qui permet de se balader dans le contenu d'un vivarium à l'échelle *100. Les capteurs modélisent le contenu du vivarium (insectes, petits animeaux, terre, plantes) en temps réel et l'envois dans le casque de réalité virtuelle avec lequel on peu se ballader.

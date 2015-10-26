@@ -1,0 +1,3 @@
+Nom: Chaise plate
+Auteur: Sarah Garcin
+Description: Une chaise Louis XV posée à plat. 

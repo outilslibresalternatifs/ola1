@@ -1,0 +1,6 @@
+AUTEUR : Nolwenn Maudet
+
+NOM DU PROJET : BirdMan
+
+DESCRIPTION :
+Un BirdMan est un outil très pratique pour vous balader en ville. Accrochez vous à ses pattes et demandez-lui une direction, il vous amènera à destination. Plus sympa qu'un taxi, moins cher qu'un Uber, profitez d'une vue à 900° de votre ville et dites adieu aux ascenceurs !
