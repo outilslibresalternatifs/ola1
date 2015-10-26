@@ -38,20 +38,11 @@ body {
   display: none;
 }
 #cartel{
-  width: 30%;
-  height: 50%;
-  position: absolute;
-  left:50%;
-  top:50%;
-  margin-top: -15%;
-  margin-left: -15%;
-  background-color: #FFF;
-}
-#cartel{
   width: 25%;
   position: absolute;
+  height:auto;
   left:2%;
-  bottom:2%;
+  top:2%;
   padding:1%;
   margin: auto;
   background-color: rgba(255, 255, 255, .7);

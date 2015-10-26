@@ -8,7 +8,7 @@
 
 var map = [ // 1  2  3  4  5  6  7  8  9
            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1,], // 0
-           [1, 0, 0, 1, 0, 0, 0, 0, 0, 1,], // 2
+           [1, 0, 0, 0, 0, 0, 1, 0, 0, 1,], // 2
            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1,], // 3
            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1,], // 4
            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1,], // 5
@@ -35,7 +35,7 @@ var WIDTH = window.innerWidth,
   FOGCOLOR = 0xffffff,
   PROJECTILEDAMAGE = 20,
   CAM_RADIUS = 100,
-  CAM_STEP = .0005;
+  CAM_STEP = .0001;
 
 // Global vars
 var t = THREE, scene, cam, renderer, controls, clock, projector, model, skin;
@@ -44,7 +44,7 @@ var healthCube, lastHealthPickup = 0;
 var scene;
 var objectPositions = [];
 var currentTarget = 0;
-var isFirstPerson = true;
+var isFirstPerson = false;
 var objects = [];
 
 $(document).ready(function() {
@@ -118,12 +118,28 @@ function init() {
   var gouraudMaterial = new THREE.MeshLambertMaterial( { color:0xFFFFFF, shading: THREE.SmoothShading, side: THREE.DoubleSide } );
 
   // FORK
-  loader.load( "objects/fork.json", function( geometry) {
+  loader.load( "objects/teteducyclope.json", function(geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial);
-    mesh.scale.set(10,10,10);
-    mesh.position.x = 20;
-    mesh.position.y = 0;
-    mesh.position.z = -200;
+    mesh.scale.set(60,60,60);
+    mesh.position.x = -800;
+    mesh.position.y = 40;
+    mesh.position.z = -800;
+    mesh.userData = { URL: "./objects/teteducyclope.json"};
+    mesh.name = "Tête du cyclope";
+    mesh.author = "Bruno";
+    mesh.description = "";
+    scene.add( mesh );
+    objectPositions.push(mesh);
+    objects.push(mesh);
+  });
+
+  // FORK
+  loader.load( "objects/fork.json", function(geometry) {
+    mesh = new THREE.Mesh( geometry, gouraudMaterial);
+    mesh.scale.set(20,20,20);
+    mesh.position.x = 100;
+    mesh.position.y = 10;
+    mesh.position.z = 800;
     mesh.userData = { URL: "./objects/fork.json"};
     mesh.name = "Fork";
     mesh.author = "Raphaël";
@@ -132,34 +148,33 @@ function init() {
     objectPositions.push(mesh);
     objects.push(mesh);
   });
+
   // pantalon
-  loader.load( "objects/pantalon.json", function( geometry) {
+  loader.load( "objects/pantalon.json", function(geometry) {
     mesh = new THREE.Mesh( geometry,gouraudMaterial );
-    mesh.scale.set(4,4,4);
-    mesh.position.x = 100;
+    mesh.scale.set(20,20,20);
+    mesh.position.x = 500;
     mesh.position.y = 50;
-    mesh.position.z = 0;
+    mesh.position.z = 500;
     mesh.userData = { URL: "./objects/pantalon.json"};
     mesh.name = "Braguette féminine";
     mesh.author = "Louise Drulhe";
-    mesh.description = "De la même manière que la braguette classique permet aux hommes de faire pipi au coin d’une rue sombre le soir, la braguette feminine donne aux femmes la possibilité de faire pipi sans baisser le pantalon. 
-Il s’agit d’une ouverture d’une dizaine de centimètres entre les deux jambes. Une fois accroupi et la braguette feminine ouverte il ne reste plus qu’à faire pipi ! ";
+    mesh.description = "De la même manière que la braguette classique permet aux hommes de faire pipi au coin d’une rue sombre le soir, la braguette feminine donne aux femmes la possibilité de faire pipi sans baisser le pantalon. Il s’agit d’une ouverture d’une dizaine de centimètres entre les deux jambes. Une fois accroupi et la braguette feminine ouverte il ne reste plus qu’à faire pipi ! ";
     scene.add( mesh );
     objectPositions.push(mesh);
     objects.push(mesh);
   });
   // pantalon2
   loader.load( "objects/pantalon2.json", function( geometry) {
-    mesh = new THREE.Mesh( geometry,new THREE.MeshLambertMaterial( { color:0xcccccc, shading: THREE.SmoothShading, side: THREE.DoubleSide } ) );
-    mesh.scale.set(4,4,4);
-    mesh.position.x = 100;
+    mesh = new THREE.Mesh( geometry,new THREE.MeshLambertMaterial( { color:0x999999, shading: THREE.SmoothShading, side: THREE.DoubleSide } ) );
+    mesh.scale.set(20,20,20);
+    mesh.position.x = 500;
     mesh.position.y = 50;
-    mesh.position.z = 0;
+    mesh.position.z = 500;
     mesh.userData = { URL: "./objects/pantalon2.json"};
     mesh.name = "Braguette féminine";
     mesh.author = "Louise Drulhe";
-    mesh.description = "De la même manière que la braguette classique permet aux hommes de faire pipi au coin d’une rue sombre le soir, la braguette feminine donne aux femmes la possibilité de faire pipi sans baisser le pantalon. 
-Il s’agit d’une ouverture d’une dizaine de centimètres entre les deux jambes. Une fois accroupi et la braguette feminine ouverte il ne reste plus qu’à faire pipi ! ";
+    mesh.description = "De la même manière que la braguette classique permet aux hommes de faire pipi au coin d’une rue sombre le soir, la braguette feminine donne aux femmes la possibilité de faire pipi sans baisser le pantalon. Il s’agit d’une ouverture d’une dizaine de centimètres entre les deux jambes. Une fois accroupi et la braguette feminine ouverte il ne reste plus qu’à faire pipi ! ";
     scene.add( mesh );
     objectPositions.push(mesh);
     objects.push(mesh);
@@ -167,9 +182,9 @@ Il s’agit d’une ouverture d’une dizaine de centimètres entre les deux jam
   // julien
   loader.load( "objects/julien.json", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    mesh.scale.set(4,4,4);
-    mesh.position.x = 400;
-    mesh.position.y = 50;
+    mesh.scale.set(30,30,30);
+    mesh.position.x = 100;
+    mesh.position.y = 0;
     mesh.position.z = 0;
     mesh.userData = { URL: "./objects/julien.json"};
     mesh.name = "Formes";
@@ -184,9 +199,9 @@ Il s’agit d’une ouverture d’une dizaine de centimètres entre les deux jam
   loader.load( "objects/nelson.json", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial);
     mesh.scale.set(24.5,24.5,24.5);
-    mesh.position.x = 0;
+    mesh.position.x = 100;
     mesh.position.y = 0;
-    mesh.position.z = 6;
+    mesh.position.z = -300;
      mesh.userData = { URL: "./objects/nelson.json"};
     mesh.name = "NanoHippoCameoTrisoRobot";
     mesh.author = "Nelson Steinmetz";
@@ -194,12 +209,14 @@ Il s’agit d’une ouverture d’une dizaine de centimètres entre les deux jam
     scene.add( mesh );
     objectPositions.push(mesh);
     objects.push(mesh);
+  });
+
   // dyson
   loader.load( "objects/dyson.json", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    mesh.scale.set(4,4,4);
-    mesh.position.x = -400;
-    mesh.position.y = 50;
+    mesh.scale.set(50,50,50);
+    mesh.position.x = 600;
+    mesh.position.y = 300;
     mesh.position.z = 0;
     mesh.userData = { URL: "./objects/dyson.json"};
     mesh.name = "Sphère de Dyson en construction";
@@ -212,15 +229,14 @@ Il s’agit d’une ouverture d’une dizaine de centimètres entre les deux jam
   // chaise
   loader.load( "objects/chaise.json", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    mesh.scale.set(6,6,4);
-    mesh.position.x = 300;
-    mesh.position.y = 30;
-    mesh.position.z = 0;
-     mesh.userData = { URL: "./objects/chaise.json"};
+    mesh.scale.set(30,30,30);
+    mesh.position.x = 400;
+    mesh.position.y = 10;
+    mesh.position.z = -400;
+    mesh.userData = { URL: "./objects/chaise.json"};
     mesh.name = "Chaise plate";
     mesh.author = "Sarah Garcin";
     mesh.description = "Une chaise Louis XV posée à plat";
-    mesh.position.z = -500;
     scene.add( mesh );
     objectPositions.push(mesh);
     objects.push(mesh);
@@ -228,15 +244,14 @@ Il s’agit d’une ouverture d’une dizaine de centimètres entre les deux jam
   // geographie
   loader.load( "objects/geographie.json", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    mesh.scale.set(4,4,4);
-    mesh.position.x = -600;
+    mesh.scale.set(30,30,30);
+    mesh.position.x = 500;
     mesh.position.y = 50;
-    mesh.position.z = 0;
+    mesh.position.z = -900;
      mesh.userData = { URL: "./objects/geographie.json"};
     mesh.name = "Géoagraphie";
     mesh.author = "Mathilde";
     mesh.description = "Sans description";
-    mesh.position.z = 400;
     scene.add( mesh );
     objectPositions.push(mesh);
     objects.push(mesh);
@@ -244,10 +259,10 @@ Il s’agit d’une ouverture d’une dizaine de centimètres entre les deux jam
   // tower
   loader.load( "objects/hugo-totems.js", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    mesh.scale.set(10,10,10);
-    mesh.position.x = 600;
+    mesh.scale.set(20,20,20);
+    mesh.position.x = -400;
     mesh.position.y = 10;
-    mesh.position.z = -500;
+    mesh.position.z = 0;
      mesh.userData = { URL: "./objects/hugo-totems.json"};
     mesh.name = "Trois petits totems";
     mesh.author = "hugohil";
@@ -260,15 +275,14 @@ Il s’agit d’une ouverture d’une dizaine de centimètres entre les deux jam
   // AKP
   loader.load( "objects/AK-P.json", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    mesh.scale.set(3,3,3);
-    mesh.position.x = 100;
+    mesh.scale.set(6,6,6);
+    mesh.position.x = -300;
     mesh.position.y = 50;
-    mesh.position.z = 200;
+    mesh.position.z = 500;
      mesh.userData = { URL: "./objects/AK-P.json"};
     mesh.name = "AK-P";
     mesh.author = "leo";
     mesh.description = "Un outil polyvalent et approprié au prolétaire.";
-    mesh.position.z = 700;
     scene.add( mesh );
     objectPositions.push(mesh);
     objects.push(mesh);
@@ -277,15 +291,14 @@ Il s’agit d’une ouverture d’une dizaine de centimètres entre les deux jam
   // birdman
   loader.load( "objects/birdman.json", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    mesh.scale.set(3,3,3);
-    mesh.position.x = 100;
-    mesh.position.y = 50;
-    mesh.position.z = 200;
+    mesh.scale.set(20,20,20);
+    mesh.position.x = -200;
+    mesh.position.y = 300;
+    mesh.position.z = 800;
      mesh.userData = { URL: "./objects/birdman.json"};
     mesh.name = "BirdMan";
     mesh.author = "Nolwenn Maudet";
     mesh.description = "Un BirdMan est un outil très pratique pour vous balader en ville. Accrochez vous à ses pattes et demandez-lui une direction, il vous amènera à destination. Plus sympa qu'un taxi, moins cher qu'un Uber, profitez d'une vue à 900° de votre ville et dites adieu aux ascenceurs !";
-    mesh.position.z = 700;
     scene.add( mesh );
     objectPositions.push(mesh);
     objects.push(mesh);
@@ -295,14 +308,13 @@ Il s’agit d’une ouverture d’une dizaine de centimètres entre les deux jam
   loader.load( "objects/powerplant.json", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial );
     mesh.scale.set(3,3,3);
-    mesh.position.x = 100;
+    mesh.position.x = -800;
     mesh.position.y = 50;
-    mesh.position.z = 200;
+    mesh.position.z = -300;
      mesh.userData = { URL: "./objects/powerplant.json"};
     mesh.name = "Powerplant";
     mesh.author = "bachir soussi chiadmi";
     mesh.description = "énergie universelle";
-    mesh.position.z = 700;
     scene.add( mesh );
     objectPositions.push(mesh);
     objects.push(mesh);
@@ -311,15 +323,14 @@ Il s’agit d’une ouverture d’une dizaine de centimètres entre les deux jam
   // Louis
   loader.load( "objects/louis.json", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    mesh.scale.set(3,3,3);
-    mesh.position.x = 100;
-    mesh.position.y = 50;
-    mesh.position.z = 200;
+    mesh.scale.set(60,60,60);
+    mesh.position.x = -500;
+    mesh.position.y = 10;
+    mesh.position.z = -300;
      mesh.userData = { URL: "./objects/louis.json"};
     mesh.name = "Machine à planter des clous";
     mesh.author = "Louis Eveillard";
     mesh.description = "D’après Gaston Lagaffe / Gala de Gaffes. Une machine pour planter un clou automatiquement. Nécessite 1 clou pour être fixée au mur au préalable.";
-    mesh.position.z = 700;
     scene.add( mesh );
     objectPositions.push(mesh);
     objects.push(mesh);
@@ -328,10 +339,10 @@ Il s’agit d’une ouverture d’une dizaine de centimètres entre les deux jam
   // Jules
   loader.load( "objects/jules.js", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    mesh.scale.set(3,3,3);
-    mesh.position.x = 100;
-    mesh.position.y = 50;
-    mesh.position.z = 200;
+    mesh.scale.set(40,40,40);
+    mesh.position.x = -800;
+    mesh.position.y = 10;
+    mesh.position.z = -500;
      mesh.userData = { URL: "./objects/jules.js"};
     mesh.name = "Jules";
     mesh.author = "Nom de l'auteur";
@@ -342,24 +353,25 @@ Il s’agit d’une ouverture d’une dizaine de centimètres entre les deux jam
     objects.push(mesh);
   });
 
-
   // Jules
   loader.load( "objects/micro-reality_ivan.js", function( geometry) {
     mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    mesh.scale.set(3,3,3);
-    mesh.position.x = 100;
+    mesh.scale.set(30,30,30);
+    mesh.position.x = -400;
     mesh.position.y = 50;
-    mesh.position.z = 200;
-     mesh.userData = { URL: "./objects/micro-reality_ivan.js"};
-    mesh.name = "Jules";
+    mesh.position.z = -800;
+    mesh.userData = { URL: "./objects/micro-reality_ivan.js"};
+    mesh.name = "Micro Reality";
     mesh.author = "Nom de l'auteur";
-    mesh.description = "Description de l'objet";
+    mesh.description = "Dispositif pour casque deréalité virtuelle qui permet de se balader dans le contenu d'un vivarium à l'échelle *100. Les capteurs modélisent le contenu du vivarium (insectes, petits animeaux, terre, plantes) en temps réel et l'envois dans le casque de réalité virtuelle avec lequel on peu se ballader.";
     mesh.position.z = 700;
     scene.add( mesh );
     objectPositions.push(mesh);
     objects.push(mesh);
   });
+
   cam.position.y = 75;
+
 } // end Init
 
 // Helper function for browser frames
@@ -377,9 +389,10 @@ function updateCamera (millis){
   cam.lookAt(target.position);
 
   // every 10s (more or less ...)
-  if(millis % 10 < .017){
+  if(millis % 15 < .017){
     currentTarget = nextTarget();
     fillCartel(objectPositions[currentTarget]);
+    showCartel();
   }
 }
 
