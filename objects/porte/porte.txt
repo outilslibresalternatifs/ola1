@@ -1,0 +1,3 @@
+Description : C'est une porte.
+Nom de l'objet : porte
+Nom de l'auteur : leo
