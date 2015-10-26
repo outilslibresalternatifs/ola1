@@ -1,12 +1,12 @@
 html {box-sizing: border-box;}
 *, *:before, *:after {box-sizing: inherit;}
 body {
-  background-image: #888;
+  background-color: #888;
   cursor: crosshair;
   font-family: ola_sans, arial;
-  margin: 0;
+  font-size: 16px;
+  margin: 0; padding: 0;
   overflow: hidden;
-  padding: 0;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -15,20 +15,33 @@ body {
   user-select: none;
 }
 
-#radar {
+/*#radar {
   bottom: 10px;
   left: 10px;
   position: absolute;
   z-index: 100;
-}
-#intro {
+}*/
+#splash {
   background-color: #000000;
   color: #FFFFFF;
   cursor: pointer;
-  padding-top: 40vh;
-  font-size: 32px;
-  text-align: center;
+  padding-top: 25vh;
   z-index: 1001;
+}
+#splash >*{
+  max-width:30vw;
+  min-width: 300px;
+  margin:0 auto;
+}
+#splash h1{
+  font-size: 2em;
+  margin: 0.5em 0;
+}
+#splash h2{
+  font-size: 1.3em;
+}
+#splash p{
+  font-size: 0.7em;
 }
 
 #container{
@@ -37,6 +50,7 @@ body {
   height:100%;
   display: none;
 }
+
 #cartel{
   width: 25%;
   position: absolute;
@@ -53,11 +67,20 @@ body {
 #cartel h3 {
   font-size: 18px;
 }
-.logo {
+
+#logo-footer {
   position: absolute;
   right: 20px;
   bottom: 0;
-  color: #010101;
-  font-size: 22px;
   opacity:.2;
+}
+#logo-footer>*{
+  display: inline-block;
+  color: #010101;
+}
+#logo-footer h1{
+  font-size: 2em;
+}
+#logo-footer h2{
+  font-size: 1.3em;
 }
