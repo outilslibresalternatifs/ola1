@@ -14,11 +14,10 @@
    WALLHEIGHT = 700,
    MOVESPEED = 100,
    LOOKSPEED = 0.075,
-   BULLETMOVESPEED = MOVESPEED * 5,
    NUMAI = 0,
-   FLOORCOLOR = 0x888888,
+   FLOORCOLOR = 0xd1d1d1,
    WALLCOLOR = 0xffffff,
-   BGCOLOR = '#ff0000',
+   BGCOLOR = '#000000',
    LIGHTCOLOR = 0xffffff,
    FOGCOLOR = 0xffffff,
    PROJECTILEDAMAGE = 20,
@@ -85,7 +84,7 @@ $(document).ready(function() {
     {
       filename:"julien.json",
       scale:30,
-      position:{x:100,y:0,z:0},
+      position:{x:300,y:0,z:0},
       name:"Formes",
       author:"Julien Gargot (mécène)",
       description:"Monstration de l’utilisation de différentes techniques d’outils sur cubes, objets par défaut de Blender. "
@@ -93,7 +92,7 @@ $(document).ready(function() {
     {
       filename:"nelson.json",
       scale:24,
-      position:{x:100,y:0,z:-300},
+      position:{x:-150,y:0,z:-300},
       name:"NanoHippoCameoTrisoRobot",
       author:"Nelson Steinmetz",
       description:"Un nano-robot caméléon-hippocampe en retard"
@@ -119,7 +118,7 @@ $(document).ready(function() {
     {
       filename:"geographie.json",
       scale:30,
-      position:{x:500,y:50,z:-900},
+      position:{x:200,y:90,z:-900},
       name:"Géoagraphie",
       author:"Mathilde",
       description:"Sans description"
@@ -128,7 +127,7 @@ $(document).ready(function() {
     {
       filename:"hugo-totems.json",
       scale:20,
-      position:{x:-400,y:10,z:0},
+      position:{x:-400,y:10,z:100},
       name:"Trois petits totems",
       author:"hugohil",
       description:"Trois petits totems d'origine inconnue."
@@ -136,7 +135,7 @@ $(document).ready(function() {
     {
       filename:"AK-P/AK-P.json",
       scale:6,
-      position:{x:-300,y:50,z:500},
+      position:{x:-100,y:50,z:500},
       name:"AK-P",
       author:"leo",
       description:"Un outil polyvalent et approprié au prolétaire."
@@ -144,7 +143,7 @@ $(document).ready(function() {
     {
       filename:"birdman.json",
       scale:20,
-      position:{x:-200,y:300,z:800},
+      position:{x:100,y:300,z:800},
       name:"BirdMan",
       author:"Nolwenn Maudet",
       description:"Un BirdMan est un outil très pratique pour vous balader en ville. Accrochez vous à ses pattes et demandez-lui une direction, il vous amènera à destination. Plus sympa qu'un taxi, moins cher qu'un Uber, profitez d'une vue à 900° de votre ville et dites adieu aux ascenceurs !"
@@ -152,7 +151,7 @@ $(document).ready(function() {
     {
       filename:"powerplant.json",
       scale:3,
-      position:{x:-800,y:50,z:-300},
+      position:{x:-800,y:0,z:-300},
       name:"Powerplant",
       author:"bachir soussi chiadmi",
       description:"énergie universelle"
@@ -178,12 +177,29 @@ $(document).ready(function() {
       scale:30,
       position:{x:-400,y:50,z:700},
       name:"Micro Reality",
-      author:"Nom de l'auteur",
+      author:"Ivant Murit",
       description:"Dispositif pour casque deréalité virtuelle qui permet de se balader dans le contenu d'un vivarium à l'échelle *100. Les capteurs modélisent le contenu du vivarium (insectes, petits animeaux, terre, plantes) en temps réel et l'envois dans le casque de réalité virtuelle avec lequel on peu se ballader."
+    },
+    {
+      filename:"ObjetAbyBatti.json",
+      scale:30,
+      position:{x:-300,y:5,z:-400},
+      name:"Flighing bot",
+      author:"Aby Battu",
+      description:""
     }
   ];
   var _loaded_objects = 0;
   var _$splash =$('#splash');
+  var _ola;
+  var _$container = $('<div id="container">').appendTo('body');
+    _$container.on("click",function(){
+      $(this).hide();
+    });
+  var _$cartel = $('<div id="cartel">').appendTo(_$container);
+    _$cartel.on("click",function(){
+      e.stopPropagation();
+    });
 
 
   function init() {
@@ -204,7 +220,7 @@ $(document).ready(function() {
 
     // Set up camera
     cam = new t.PerspectiveCamera(60, ASPECT, 1, 10000); // FOV, aspect, near, far
-    cam.position.y = UNITSIZE * .2;
+    cam.position.y = UNITSIZE;
     scene.add(cam);
 
     // Camera moves with mouse, flies around with WASD/arrow keys
@@ -220,25 +236,24 @@ $(document).ready(function() {
     setupScene();
 
     // Handle drawing as WebGL (faster than Canvas but less supported)
-    renderer = new t.WebGLRenderer({antialasing: true});
+    renderer = new t.WebGLRenderer({
+      antialasing: true
+    });
     renderer.setSize(WIDTH, HEIGHT);
-
+    renderer.shadowMapEnabled = true;
+    renderer.shadowMapSoft = true;
+    renderer.shadowMapType = t.PCFShadowMap;
     // Add the canvas to the document
     renderer.domElement.style.backgroundColor = BGCOLOR; // easier to see
     document.body.appendChild(renderer.domElement);
 
-    // $("#container").on("click",function(){
-    //   $("#container").hide();
-    // });
-
-    $("#cartel").on("click", function(e){
-      e.stopPropagation();
-    });
-
-
     // Importer
     var loader = new THREE.JSONLoader();
-    var gouraudMaterial = new THREE.MeshLambertMaterial( { color:0xFFFFFF, shading: THREE.SmoothShading, side: THREE.DoubleSide } );
+    var gouraudMaterial = new THREE.MeshLambertMaterial({
+      color:0xFFFFFF,
+      shading: THREE.SmoothShading,
+      side: THREE.DoubleSide
+    });
 
     for (var i = 0; i < objects.length; i++) {
       loadObject(objects[i],loader,gouraudMaterial);
@@ -248,7 +263,7 @@ $(document).ready(function() {
 
   } // end Init
 
-  function  loadObject(obj,loader,gouraudMaterial){
+  function loadObject(obj,loader,gouraudMaterial){
     loader.load( "objects/"+obj.filename, function(geometry) {
       var mesh = new THREE.Mesh( geometry, gouraudMaterial);
       mesh.scale.set(obj.scale,obj.scale,obj.scale);
@@ -256,6 +271,9 @@ $(document).ready(function() {
       mesh.position.x = obj.position.x;
       mesh.position.y = obj.position.y;
       mesh.position.z = obj.position.z;
+      mesh.castShadow = true;
+      mesh.receiveShadow = false;
+      // customs
       mesh.userData = {URL:"./objects/"+obj.filename};
       mesh.name = obj.name;
       mesh.author = obj.author;
@@ -289,13 +307,13 @@ $(document).ready(function() {
         new t.CubeGeometry(units * UNITSIZE, 10, units * UNITSIZE),
         new THREE.MeshLambertMaterial( { color:FLOORCOLOR, shading: THREE.SmoothShading, side: THREE.DoubleSide } )
     );
+    floor.receiveShadow = true;
     scene.add(floor);
 
     // Geometry: walls
     var cube = new t.CubeGeometry(UNITSIZE, WALLHEIGHT, UNITSIZE);
-    var materials = [
+    var materials = [new t.MeshLambertMaterial({color: WALLCOLOR})];
 
-   new t.MeshLambertMaterial({color: WALLCOLOR})];
     for (var i = 0; i < mapW; i++) {
       for (var j = 0, m = map[i].length; j < m; j++) {
         if (map[i][j]) {
@@ -303,37 +321,103 @@ $(document).ready(function() {
           wall.position.x = (i - units/2) * UNITSIZE;
           wall.position.y = WALLHEIGHT/2;
           wall.position.z = (j - units/2) * UNITSIZE;
+          wall.receiveShadow = true;
           scene.add(wall);
         }
       }
     }
 
+    // ola
+    var loader = new THREE.JSONLoader();
+    var gouraudMaterial = new THREE.MeshLambertMaterial({
+      color:0xFFFFFF,
+      shading: THREE.SmoothShading,
+      side: THREE.DoubleSide
+    });
+    loader.load( "objects/ola-logo.json", function(geometry) {
+      _ola = new THREE.Mesh( geometry, gouraudMaterial);
+      _ola.scale.set(50,50,50);
+      // _ola.position.set(obj.position);
+      _ola.position.x = 0;
+      _ola.position.y = 10;
+      _ola.position.z = 0;
+      _ola.castShadow = true;
+      _ola.receiveShadow = false;
+      scene.add( _ola );
+    });
+
+
     // Lighting
-    var directionalLight1 = new t.DirectionalLight( 0xffffff, 1 );
-    directionalLight1.position.set( 0, 100, 0 );
+    var floorw = (units * UNITSIZE *0.8);
+
+    // var geometry = new THREE.BoxGeometry( 5, 5, 5 );
+    // var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+    // var repere = new THREE.Mesh( geometry, material );
+    // repere.position.set(floorw/2, WALLHEIGHT/2, floorw/2);
+    // scene.add( repere );
+
+    var light = new t.DirectionalLight(0xffffff,0.4);
+    light.position.set( 0, 200, 0 );
+    light.castShadow = true;
+    light.shadowDarkness = 0.5;
+    light.shadowCameraVisible = true;
+    // light.shadowBias = 0.0001;
+    light.shadowMapWidth = floorw;
+    light.shadowMapHeight = floorw;
+    scene.add( light );
+
+    var directionalLight1 = new t.DirectionalLight( 0x0000ff, 0.7 );
+    directionalLight1.position.set( 0, WALLHEIGHT/2, floorw/2 );
     scene.add( directionalLight1 );
-    var directionalLight2 = new t.DirectionalLight( 0x0000ff, 0.8 );
-    directionalLight2.position.set( 100, 100, 300 );
+
+    var directionalLight2 = new t.DirectionalLight( 0x00ff00, 0.7 );
+    directionalLight2.position.set( floorw/2, WALLHEIGHT/2, 0 );
     scene.add( directionalLight2 );
-    var directionalLight2 = new t.DirectionalLight( 0xff00ff, 0.8 );
-    directionalLight2.position.set( 100, 100, -300 );
-    scene.add( directionalLight2 );
-    var directionalLight3 = new t.DirectionalLight( 0xffff00, 0.8 );
-    directionalLight3.position.set( -700, 300, -100 );
+    //
+    var directionalLight3 = new t.DirectionalLight( 0xffff00, 0.7 );
+    directionalLight3.position.set( 0, WALLHEIGHT/2, -floorw/2 );
     scene.add( directionalLight3 );
+    //
+    var directionalLight4 = new t.DirectionalLight( 0xff00ff, 0.7 );
+    directionalLight4.position.set( -floorw/2, WALLHEIGHT/2, 0 );
+    scene.add( directionalLight4 );
+
+    // for (var i = 0; i < lights.length; i++) {
+    //   lights[i]
+    // }
+
+    // var lightbox = units*0.5;
+    // var light = new t.HemisphereLight(0x85bdff, 0xffffff,1);
+    // light.position.set( units/2, 500, units/2 );
+    // scene.add( light );
+    // var directionalLight1 = new t.DirectionalLight( 0xffffff, 0.5 );
+    // directionalLight1.position.set( 0, 15, 0 );
+    // scene.add( directionalLight1 );
+    // var directionalLight2 = new t.DirectionalLight( 0x0000ff, 0.5 );
+    // directionalLight2.position.set( 0, 15, lightbox );
+    // scene.add( directionalLight2 );
+    // var directionalLight3 = new t.DirectionalLight( 0xff00ff, 0.5 );
+    // directionalLight3.position.set( lightbox, 15, lightbox );
+    // scene.add( directionalLight3 );
+    // var directionalLight4 = new t.DirectionalLight( 0xffff00, 0.5 );
+    // directionalLight4.position.set( lightbox, 15, 0 );
+    // scene.add( directionalLight4 );
   }
 
   // Update and display
   function render(millis) {
     requestAnimationFrame(render);
 
-    var delta = clock.getDelta(), speed = delta * BULLETMOVESPEED;
+    var delta = clock.getDelta();
     var aispeed = delta * MOVESPEED;
     if(isFirstPerson){
       controls.update(delta); // Move camera
     } else {
       updateCamera(millis);
     }
+
+    _ola.rotation.y += 0.005;
+    // _meshs[6].rotation.y += 0.005;
 
     renderer.render(scene, cam); // Repaint
   };
@@ -363,23 +447,17 @@ $(document).ready(function() {
   * Cartels
   */
   function fillCartel (object){
-    var container = document.getElementById("container");
-    var $cartel = $("#cartel");
-    $cartel.empty();
+    _$cartel.empty();
     var content = "<h2>"+object.name+"</h2><h3>"+object.author+"</h3><p>"+object.description+"</p><a href='"+object.userData.URL+"' alt='"+object.name+"'>Fichier source</a>";
-    $cartel.append(content);
+    _$cartel.append(content);
   }
 
   function showCartel (){
-    var $container = $("#container");
-    var $cartel = $("#cartel");
-    $container.style('display', 'block');
+    _$container.css('display', 'block');
   }
 
   function hideCartel (){
-    var container = document.getElementById("container");
-    var $cartel = $("#cartel");
-    container.style.display = 'none';
+    _$container.css('display', 'none');
   }
 
 
