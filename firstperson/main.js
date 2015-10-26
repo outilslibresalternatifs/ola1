@@ -38,13 +38,13 @@ var WIDTH = window.innerWidth,
   CAM_STEP = .0001;
 
 // Global vars
-var t = THREE, scene, cam, renderer, controls, clock, projector, model, skin;
-var runAnim = true, mouse = { x: 0, y: 0 }, kills = 0, health = 100;
+var t = THREE, scene, cam, renderer, controls, clock, model, skin;
+var runAnim = true, mouse = { x: 0, y: 0 };
 var healthCube, lastHealthPickup = 0;
 var scene;
 var objectPositions = [];
 var currentTarget = 0;
-var isFirstPerson = false;
+var isFirstPerson = true;
 var objects = [];
 
 $(document).ready(function() {
@@ -60,9 +60,9 @@ $(document).ready(function() {
 // Setup
 function init() {
   clock = new t.Clock(); // Used in render() for controls.update()
-  projector = new t.Projector(); // Used in bullet projection
   scene = new t.Scene(); // Holds all objects in the canvas
   scene.fog = new t.FogExp2(FOGCOLOR, 0.0005); // color, density
+  console.log('test');
 
   // Set up camera
   cam = new t.PerspectiveCamera(60, ASPECT, 1, 10000); // FOV, aspect, near, far
@@ -88,18 +88,18 @@ function init() {
   document.body.appendChild(renderer.domElement);
 
   // Track mouse position so we know where to shoot
-  document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+  // document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 
   //Click on object
-  document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+  // document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 
   // Shoot on click
-  $(document).click(function(e) {
-    e.preventDefault;
-    if (e.which === 1) { // Left click only
-      //createBullet();
-    }
-  });
+  // $(document).click(function(e) {
+  //   e.preventDefault;
+  //   if (e.which === 1) { // Left click only
+  //     //createBullet();
+  //   }
+  // });
 
   $("#container").on("click",function(){
     $("#container").hide();
@@ -164,6 +164,7 @@ function init() {
     objectPositions.push(mesh);
     objects.push(mesh);
   });
+
   // pantalon2
   loader.load( "objects/pantalon2.json", function( geometry) {
     mesh = new THREE.Mesh( geometry,new THREE.MeshLambertMaterial( { color:0x999999, shading: THREE.SmoothShading, side: THREE.DoubleSide } ) );
@@ -374,146 +375,10 @@ function init() {
 
 } // end Init
 
-// Helper function for browser frames
-function animate(millis) {
-  if (runAnim) {
-    requestAnimationFrame(animate);
-  }
-  render(millis);
-}
-
-function updateCamera (millis){
-  var target = objectPositions[currentTarget];
-  cam.position.x = (target.position.x + CAM_RADIUS) * Math.cos(millis * CAM_STEP);
-  cam.position.z = (target.position.z + CAM_RADIUS) * Math.sin(millis * CAM_STEP);
-  cam.lookAt(target.position);
-
-  // every 10s (more or less ...)
-  if(millis % 15 < .017){
-    currentTarget = nextTarget();
-    fillCartel(objectPositions[currentTarget]);
-    showCartel();
-  }
-}
-
-function nextTarget (){
-  return ((currentTarget + 1) >= objectPositions.length) ? 0 : currentTarget + 1;
-}
-
-function showCartel (){
-  var container = document.getElementById("container");
-  var $cartel = $("#cartel");
-  container.style.display = 'block';
-}
-
-function hideCartel (){
-  var container = document.getElementById("container");
-  var $cartel = $("#cartel");
-  container.style.display = 'none';
-}
-
-function fillCartel (object){
-  var container = document.getElementById("container");
-  var $cartel = $("#cartel");
-  $cartel.empty();
-  var content = "<h2>"+object.name+"</h2><h3>"+object.author+"</h3><p>"+object.description+"</p><a href='"+object.userData.URL+"' alt='"+object.name+"'>Fichier source</a>";
-  $cartel.append(content);
-}
-
-document.addEventListener('keyup', function (event){
-  if(event.keyCode == 70){ // 70 = F key
-    isFirstPerson = !isFirstPerson;
-    if(!isFirstPerson){
-      showCartel();
-      currentTarget = nextTarget();
-      fillCartel(objectPositions[currentTarget]);
-    } else {
-      hideCartel();
-    }
-  }
-});
-
-// Update and display
-function render(millis) {
-  var delta = clock.getDelta(), speed = delta * BULLETMOVESPEED;
-  var aispeed = delta * MOVESPEED;
-  if(isFirstPerson){
-    controls.update(delta); // Move camera
-  } else {
-    updateCamera(millis);
-  }
-
-  // Rotate the health cube
-  healthcube.rotation.x += 0.004
-  healthcube.rotation.y += 0.008;
-  // Allow picking it up once per minute
-  if (Date.now() > lastHealthPickup + 60000) {
-    if (distance(cam.position.x, cam.position.z, healthcube.position.x, healthcube.position.z) < 15 && health != 100) {
-      health = Math.min(health + 50, 100);
-      $('#health').html(health);
-      lastHealthPickup = Date.now();
-    }
-    healthcube.material.wireframe = false;
-  }
-  else {
-    healthcube.material.wireframe = true;
-  }
-
-  // Update bullets. Walk backwards through the list so we can remove items.
-  for (var i = bullets.length-1; i >= 0; i--) {
-    var b = bullets[i], p = b.position, d = b.ray.direction;
-    if (checkWallCollision(p)) {
-      bullets.splice(i, 1);
-      scene.remove(b);
-      continue;
-    }
-    // Collide with AI
-    var hit = false;
-    for (var j = ai.length-1; j >= 0; j--) {
-      var a = ai[j];
-      var v = a.geometry.vertices[0];
-      var c = a.position;
-      var x = Math.abs(v.x), z = Math.abs(v.z);
-      //console.log(Math.round(p.x), Math.round(p.z), c.x, c.z, x, z);
-      if (p.x < c.x + x && p.x > c.x - x &&
-          p.z < c.z + z && p.z > c.z - z &&
-          b.owner != a) {
-        bullets.splice(i, 1);
-        scene.remove(b);
-        a.health -= PROJECTILEDAMAGE;
-        var color = a.material.color, percent = a.health / 100;
-        a.material.color.setRGB(
-            percent * color.r,
-            percent * color.g,
-            percent * color.b
-        );
-        hit = true;
-        break;
-      }
-    }
-    // Bullet hits player
-    if (distance(p.x, p.z, cam.position.x, cam.position.z) < 25 && b.owner != cam) {
-      $('#hurt').fadeIn(75);
-      health -= 10;
-      if (health < 0) health = 0;
-      val = health < 25 ? '<span style="color: darkRed">' + health + '</span>' : health;
-      $('#health').html(val);
-      bullets.splice(i, 1);
-      scene.remove(b);
-      $('#hurt').fadeOut(350);
-    }
-    if (!hit) {
-      b.translateX(speed * d.x);
-      //bullets[i].translateY(speed * bullets[i].direction.y);
-      b.translateZ(speed * d.z);
-    }
-  }
-  renderer.render(scene, cam); // Repaint
-
-}
 
 // Set up the objects in the world
 function setupScene() {
+  console.log(setupScene);
   var UNITSIZE = 250, units = mapW;
 
   // Geometry: floor
@@ -540,14 +405,6 @@ function setupScene() {
     }
   }
 
-  // Health cube
-  healthcube = new t.Mesh(
-      new t.CubeGeometry(30, 30, 30),
-      new t.MeshBasicMaterial({map: t.ImageUtils.loadTexture('images/health.png')})
-  );
-  healthcube.position.set(-UNITSIZE-15, 35, -UNITSIZE-15);
-  //scene.add(healthcube);
-
   // Lighting
   var directionalLight1 = new t.DirectionalLight( 0xffffff, 1 );
   directionalLight1.position.set( 0, 100, 0 );
@@ -564,140 +421,72 @@ function setupScene() {
 }
 
 
-// MOBS
 
-var ai = [];
-var aiGeo = new t.CubeGeometry(40, 40, 40);
-function setupAI() {
-  for (var i = 0; i < NUMAI; i++) {
-    addAI();
+// Helper function for browser frames
+
+// Update and display
+function render(millis) {
+  var delta = clock.getDelta(), speed = delta * BULLETMOVESPEED;
+  var aispeed = delta * MOVESPEED;
+  if(isFirstPerson){
+    controls.update(delta); // Move camera
+  } else {
+    updateCamera(millis);
+  }
+
+  renderer.render(scene, cam); // Repaint
+}
+
+
+function animate(millis) {
+  if (runAnim) {
+    requestAnimationFrame(animate);
+  }
+  render(millis);
+}
+
+function updateCamera (millis){
+  var target = objectPositions[currentTarget];
+  cam.position.x = (target.position.x + CAM_RADIUS) * Math.cos(millis * CAM_STEP);
+  cam.position.z = (target.position.z + CAM_RADIUS) * Math.sin(millis * CAM_STEP);
+  cam.lookAt(target.position);
+
+  // every 10s (more or less ...)
+  if(millis % 15 < .017){
+    currentTarget = nextTarget();
+    fillCartel(objectPositions[currentTarget]);
+    showCartel();
   }
 }
 
-function addAI() {
-  var c = getMapSector(cam.position);
-  var aiMaterial = new t.MeshBasicMaterial({/*color: 0xEE3333,*/map: t.ImageUtils.loadTexture('images/face.png')});
-  var o = new t.Mesh(aiGeo, aiMaterial);
-  do {
-    var x = getRandBetween(0, mapW-1);
-    var z = getRandBetween(0, mapH-1);
-  } while (map[x][z] > 0 || (x == c.x && z == c.z));
-  x = Math.floor(x - mapW/2) * UNITSIZE;
-  z = Math.floor(z - mapW/2) * UNITSIZE;
-  o.position.set(x, UNITSIZE * 0.15, z);
-  o.health = 100;
-  //o.path = getAIpath(o);
-  o.pathPos = 1;
-  o.lastRandomX = Math.random();
-  o.lastRandomZ = Math.random();
-  o.lastShot = Date.now(); // Higher-fidelity timers aren't a big deal here.
-  ai.push(o);
-  scene.add(o);
+function nextTarget (){
+  return ((currentTarget + 1) >= objectPositions.length) ? 0 : currentTarget + 1;
 }
 
-function getAIpath(a) {
-  var p = getMapSector(a.position);
-  do { // Cop-out
-    do {
-      var x = getRandBetween(0, mapW-1);
-      var z = getRandBetween(0, mapH-1);
-    } while (map[x][z] > 0 || distance(p.x, p.z, x, z) < 3);
-    var path = findAIpath(p.x, p.z, x, z);
-  } while (path.length == 0);
-  return path;
-}
-
-function findAIpath(sX, sZ, eX, eZ) {
-  var backupGrid = grid.clone();
-  var path = finder.findPath(sX, sZ, eX, eZ, grid);
-  grid = backupGrid;
-  return path;
-}
-
-function distance(x1, y1, x2, y2) {
-  return Math.sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
-}
-
-function getMapSector(v) {
-  var x = Math.floor((v.x + UNITSIZE / 2) / UNITSIZE + mapW/2);
-  var z = Math.floor((v.z + UNITSIZE / 2) / UNITSIZE + mapW/2);
-  return {x: x, z: z};
-}
-
-function checkWallCollision(v) {
-  var c = getMapSector(v);
-  return map[c.x][c.z] > 0;
-}
-
-
-var bullets = [];
-var sphereMaterial = new t.MeshBasicMaterial({color: 0x333333});
-var sphereGeo = new t.SphereGeometry(2, 6, 6);
-function createBullet(obj) {
-  if (obj === undefined) {
-    obj = cam;
-  }
-  var sphere = new t.Mesh(sphereGeo, sphereMaterial);
-  sphere.position.set(obj.position.x, obj.position.y * 0.8, obj.position.z);
-
-  if (obj instanceof t.Camera) {
-    var vector = new t.Vector3(mouse.x, mouse.y, 1);
-    projector.unprojectVector(vector, obj);
-    sphere.ray = new t.Ray(
-        obj.position,
-        vector.subSelf(obj.position).normalize()
-    );
-  }
-  else {
-    var vector = cam.position.clone();
-    sphere.ray = new t.Ray(
-        obj.position,
-        vector.subSelf(obj.position).normalize()
-    );
-  }
-  sphere.owner = obj;
-  bullets.push(sphere);
-  scene.add(sphere);
-  return sphere;
-}
-
-//Au click sur un objet
-function onDocumentMouseDown(event) {
-
-  event.preventDefault();
-
-  //affiche le cartel
+function fillCartel (object){
   var container = document.getElementById("container");
   var $cartel = $("#cartel");
+  $cartel.empty();
+  var content = "<h2>"+object.name+"</h2><h3>"+object.author+"</h3><p>"+object.description+"</p><a href='"+object.userData.URL+"' alt='"+object.name+"'>Fichier source</a>";
+  $cartel.append(content);
+}
 
-  var vector = new THREE.Vector3(
-      ( event.clientX / window.innerWidth ) * 2 - 1,
-    - ( event.clientY / window.innerHeight ) * 2 + 1,
-      0.5
-  );
-  vector.unproject(cam);
+function showCartel (){
+  var $container = $("#container");
+  var $cartel = $("#cartel");
+  $container.style('display', 'block');
+}
 
-  var ray = new THREE.Raycaster( cam.position,
-                           vector.sub( cam.position ).normalize() );
-
-  var intersects = ray.intersectObjects(objects);
-
-  if ( intersects.length > 0 ) {
-    container.style.display= "block";
-    $cartel.empty();
-    var content = "<h2>"+intersects[0].object.name+"</h2><h3>"+intersects[0].object.author+"</h3><p>"+intersects[0].object.description+"</p><a href='"+intersects[0].object.userData.URL+"' alt='"+intersects[0].object.name+"'>Fichier source</a>";
-    $cartel.append(content);
-  }
+function hideCartel (){
+  var container = document.getElementById("container");
+  var $cartel = $("#cartel");
+  container.style.display = 'none';
 }
 
 
-
-
-function onDocumentMouseMove(e) {
-  e.preventDefault();
-  mouse.x = (e.clientX / WIDTH) * 2 - 1;
-  mouse.y = - (e.clientY / HEIGHT) * 2 + 1;
-}
+/*
+* events
+*/
 
 // Handle window resizing
 $(window).resize(function() {
@@ -722,8 +511,30 @@ $(window).blur(function() {
   if (controls) controls.freeze = true;
 });
 
-//Get a random integer between lo and hi, inclusive.
-//Assumes lo and hi are integers and lo is lower than hi.
-function getRandBetween(lo, hi) {
- return parseInt(Math.floor(Math.random()*(hi-lo+1))+lo, 10);
+document.addEventListener('keyup', function (event){
+  if(event.keyCode == 70){ // 70 = F key
+    isFirstPerson = !isFirstPerson;
+    if(!isFirstPerson){
+      showCartel();
+      currentTarget = nextTarget();
+      fillCartel(objectPositions[currentTarget]);
+    } else {
+      hideCartel();
+    }
+  }
+});
+
+/*
+* helpers
+*/
+
+function getMapSector(v) {
+  var x = Math.floor((v.x + UNITSIZE / 2) / UNITSIZE + mapW/2);
+  var z = Math.floor((v.z + UNITSIZE / 2) / UNITSIZE + mapW/2);
+  return {x: x, z: z};
+}
+
+function checkWallCollision(v) {
+  var c = getMapSector(v);
+  return map[c.x][c.z] > 0;
 }
