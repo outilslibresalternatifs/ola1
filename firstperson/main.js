@@ -264,6 +264,7 @@ $(document).ready(function() {
       _meshs.push(mesh);
 
       _loaded_objects++;
+      updateLoader();
       if(_loaded_objects == objects.length){
         render();
         _$splash.fadeOut();
@@ -271,6 +272,11 @@ $(document).ready(function() {
     });
   };
 
+  function updateLoader(){
+    $('#splash .loaded').css({
+      'width':(_loaded_objects*100)/objects.length +"%"
+    });
+  };
   // Set up the objects in the world
   function setupScene() {
     console.log(setupScene);

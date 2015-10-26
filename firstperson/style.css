@@ -52,6 +52,20 @@ body {
   font-size: 0.7em;
   margin-bottom: 0.4em;
 }
+#splash .loader{
+  height:1px;
+  background-color: #555555;
+  position: relative;
+}
+#splash .loaded{
+  position: absolute;
+  top:0; left:0;
+  height:100%;
+  width:1;
+  background-color: #fff;
+  transition: width 0.5s;
+}
+
 
 #container{
   position:fixed;
