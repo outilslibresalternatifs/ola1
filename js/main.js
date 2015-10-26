@@ -22,7 +22,8 @@
    FOGCOLOR = 0xffffff,
    PROJECTILEDAMAGE = 20,
    CAM_RADIUS = 100,
-   CAM_STEP = .0001;
+   CAM_STEP = .0001,
+   INTERSECTED = null;
 
    var map = [ // 1  2  3  4  5  6  7  8  9
               [1, 1, 1, 1, 1, 1, 1, 1, 1, 1,], // 0
@@ -41,7 +42,7 @@
 $(document).ready(function() {
 
   // Global vars
-  var t = THREE, scene, cam, renderer, controls, clock, model, skin;
+  var t = THREE, scene, cam, renderer, controls, clock, projector;
   var runAnim = true, mouse = { x: 0, y: 0 };
   var healthCube, lastHealthPickup = 0;
   var scene;
@@ -200,23 +201,26 @@ $(document).ready(function() {
     _$cartel.on("click",function(){
       e.stopPropagation();
     });
-
+  var _mousePos = {x:0,y:0};
 
   function init() {
+    console.log('init');
     _$splash.css({width: WIDTH, height: HEIGHT}).one('click', function(e) {
+      console.log('click splash');
       e.preventDefault();
       init3dEnv();
-      // render();
-      // $(this).fadeOut();
     });
-  }
+  };
 
   // Init3D
   function init3dEnv() {
+    console.log('init3dEnv');
     clock = new t.Clock(); // Used in render() for controls.update()
     scene = new t.Scene(); // Holds all objects in the canvas
     scene.fog = new t.FogExp2(FOGCOLOR, 0.0005); // color, density
-    console.log('test');
+
+    // initialize object to perform world/screen calculations
+    projector = new t.Projector();
 
     // Set up camera
     cam = new t.PerspectiveCamera(60, ASPECT, 1, 10000); // FOV, aspect, near, far
@@ -248,11 +252,11 @@ $(document).ready(function() {
     document.body.appendChild(renderer.domElement);
 
     // Importer
-    var loader = new THREE.JSONLoader();
-    var gouraudMaterial = new THREE.MeshLambertMaterial({
+    var loader = new t.JSONLoader();
+    var gouraudMaterial = new t.MeshLambertMaterial({
       color:0xFFFFFF,
-      shading: THREE.SmoothShading,
-      side: THREE.DoubleSide
+      shading: t.SmoothShading,
+      side: t.DoubleSide
     });
 
     for (var i = 0; i < objects.length; i++) {
@@ -261,11 +265,16 @@ $(document).ready(function() {
 
     cam.position.y = 75;
 
-  } // end Init
+    $('body').on('mousemove', function(event) {
+      _mousePos.x = (event.clientX / window.innerWidth) *2 -1;
+      _mousePos.y = -(event.clientY / window.innerHeight) *2 +1;
+    });
+
+  } // end init3dEnv
 
   function loadObject(obj,loader,gouraudMaterial){
     loader.load( "objects/"+obj.filename, function(geometry) {
-      var mesh = new THREE.Mesh( geometry, gouraudMaterial);
+      var mesh = new t.Mesh( geometry, gouraudMaterial);
       mesh.scale.set(obj.scale,obj.scale,obj.scale);
       // mesh.position.set(obj.position);
       mesh.position.x = obj.position.x;
@@ -299,13 +308,12 @@ $(document).ready(function() {
   };
   // Set up the objects in the world
   function setupScene() {
-    console.log(setupScene);
     var UNITSIZE = 250, units = mapW;
 
     // Geometry: floor
     var floor = new t.Mesh(
         new t.CubeGeometry(units * UNITSIZE, 10, units * UNITSIZE),
-        new THREE.MeshLambertMaterial( { color:FLOORCOLOR, shading: THREE.SmoothShading, side: THREE.DoubleSide } )
+        new t.MeshLambertMaterial( { color:FLOORCOLOR, shading: t.SmoothShading, side: t.DoubleSide } )
     );
     floor.receiveShadow = true;
     scene.add(floor);
@@ -328,14 +336,14 @@ $(document).ready(function() {
     }
 
     // ola
-    var loader = new THREE.JSONLoader();
-    var gouraudMaterial = new THREE.MeshLambertMaterial({
+    var loader = new t.JSONLoader();
+    var gouraudMaterial = new t.MeshLambertMaterial({
       color:0xFFFFFF,
-      shading: THREE.SmoothShading,
-      side: THREE.DoubleSide
+      shading: t.SmoothShading,
+      side: t.DoubleSide
     });
     loader.load( "objects/ola-logo.json", function(geometry) {
-      _ola = new THREE.Mesh( geometry, gouraudMaterial);
+      _ola = new t.Mesh( geometry, gouraudMaterial);
       _ola.scale.set(50,50,50);
       // _ola.position.set(obj.position);
       _ola.position.x = 0;
@@ -350,20 +358,30 @@ $(document).ready(function() {
     // Lighting
     var floorw = (units * UNITSIZE *0.8);
 
-    // var geometry = new THREE.BoxGeometry( 5, 5, 5 );
-    // var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-    // var repere = new THREE.Mesh( geometry, material );
+    // var geometry = new t.BoxGeometry( 5, 5, 5 );
+    // var material = new t.MeshBasicMaterial( { color: 0x00ff00 } );
+    // var repere = new t.Mesh( geometry, material );
     // repere.position.set(floorw/2, WALLHEIGHT/2, floorw/2);
     // scene.add( repere );
 
     var light = new t.DirectionalLight(0xffffff,0.4);
-    light.position.set( 0, 200, 0 );
+    light.position.set( 0, WALLHEIGHT, 0 );
+    light.target.position.set(0, 0, 0);
     light.castShadow = true;
-    light.shadowDarkness = 0.5;
+    light.shadowDarkness = 0.9;
     light.shadowCameraVisible = true;
     // light.shadowBias = 0.0001;
     light.shadowMapWidth = floorw;
     light.shadowMapHeight = floorw;
+
+    light.shadowCameraNear = 0;
+    light.shadowCameraFar = 15;
+
+    light.shadowCameraLeft = -5;
+    light.shadowCameraRight = 5;
+    light.shadowCameraTop = 5;
+    light.shadowCameraBottom = -5;
+
     scene.add( light );
 
     var directionalLight1 = new t.DirectionalLight( 0x0000ff, 0.7 );
@@ -419,7 +437,50 @@ $(document).ready(function() {
     _ola.rotation.y += 0.005;
     // _meshs[6].rotation.y += 0.005;
 
+    checkIntersect();
+
     renderer.render(scene, cam); // Repaint
+  };
+
+  function checkIntersect(){
+    // create a Ray with origin at the mouse position
+    //   and direction into the scene (camera direction)
+    var vector = new t.Vector3( _mousePos.x, _mousePos.y, 1 );
+    vector.unproject(cam);
+    var ray = new t.Raycaster( cam.position, vector.sub( cam.position ).normalize() );
+
+    // create an array containing all objects in the scene with which the ray intersects
+    var intersects = ray.intersectObjects( _meshs ); //scene.children
+
+    // INTERSECTED = the object in the scene currently closest to the camera
+    //		and intersected by the Ray projected from the mouse position
+
+    // if there is one (or more) intersections
+    if ( intersects.length > 0 ){
+      // console.log('there is intersects', intersects);
+      // if the closest object intersected is not the currently stored intersection object
+      if ( intersects[0].object != INTERSECTED ){
+        // restore previous intersection object (if it exists) to its original color
+        // if ( INTERSECTED )
+        // store reference to closest object as current intersection object
+        INTERSECTED = intersects[ 0 ].object;
+
+        console.log('new intersect', INTERSECTED.name);
+
+        // update text, if it has a "name" field.
+        if ( INTERSECTED.name ){
+          fillCartel(INTERSECTED);
+          showCartel();
+        }else{
+          hideCartel();
+        }
+      }
+    }
+    else{ // there are no intersections
+      console.log('there is not intersetcs');
+      hideCartel();
+      INTERSECTED = null;
+    }
   };
 
   /*
@@ -447,6 +508,7 @@ $(document).ready(function() {
   * Cartels
   */
   function fillCartel (object){
+    console.log('fillCartel', object);
     _$cartel.empty();
     var content = "<h2>"+object.name+"</h2><h3>"+object.author+"</h3><p>"+object.description+"</p><a href='"+object.userData.URL+"' alt='"+object.name+"'>Fichier source</a>";
     _$cartel.append(content);
@@ -459,7 +521,6 @@ $(document).ready(function() {
   function hideCartel (){
     _$container.css('display', 'none');
   }
-
 
   /*
   * events
@@ -502,8 +563,6 @@ $(document).ready(function() {
         }
         break;
     }
-  //   // event.stopPropagation();
-  //   // return false;
   });
 
   init();
@@ -523,257 +582,3 @@ function checkWallCollision(v) {
   var c = getMapSector(v);
   return map[c.x][c.z] > 0;
 }
-
-
-    // loader.load( "objects/teteducyclope.json", function(geometry) {
-    //   mesh = new THREE.Mesh( geometry, gouraudMaterial);
-    //   mesh.scale.set(60,60,60);
-    //   mesh.position.x = -800;
-    //   mesh.position.y = 40;
-    //   mesh.position.z = -800;
-    //   mesh.userData = { URL: "./objects/teteducyclope.json"};
-    //   mesh.name = "Tête du cyclope";
-    //   mesh.author = "Bruno";
-    //   mesh.description = "";
-    //   scene.add( mesh );
-    //   _meshs.push(mesh);
-    //   objects.push(mesh);
-    // });
-    //
-    // // FORK
-    // loader.load( "objects/fork.json", function(geometry) {
-    //   mesh = new THREE.Mesh( geometry, gouraudMaterial);
-    //   mesh.scale.set(20,20,20);
-    //   mesh.position.x = 100;
-    //   mesh.position.y = 10;
-    //   mesh.position.z = 800;
-    //   mesh.userData = { URL: "./objects/fork.json"};
-    //   mesh.name = "Fork";
-    //   mesh.author = "Raphaël";
-    //   mesh.description = "Fourchette forquée";
-    //   scene.add( mesh );
-    //   _meshs.push(mesh);
-    //   objects.push(mesh);
-    // });
-    //
-    // // pantalon
-    // loader.load( "objects/pantalon.json", function(geometry) {
-    //   mesh = new THREE.Mesh( geometry,gouraudMaterial );
-    //   mesh.scale.set(20,20,20);
-    //   mesh.position.x = 500;
-    //   mesh.position.y = 50;
-    //   mesh.position.z = 500;
-    //   mesh.userData = { URL: "./objects/pantalon.json"};
-    //   mesh.name = "Braguette féminine";
-    //   mesh.author = "Louise Drulhe";
-    //   mesh.description = "De la même manière que la braguette classique permet aux hommes de faire pipi au coin d’une rue sombre le soir, la braguette feminine donne aux femmes la possibilité de faire pipi sans baisser le pantalon. Il s’agit d’une ouverture d’une dizaine de centimètres entre les deux jambes. Une fois accroupi et la braguette feminine ouverte il ne reste plus qu’à faire pipi ! ";
-    //   scene.add( mesh );
-    //   _meshs.push(mesh);
-    //   objects.push(mesh);
-    // });
-    //
-    // // pantalon2
-    // loader.load( "objects/pantalon2.json", function( geometry) {
-    //   mesh = new THREE.Mesh( geometry,new THREE.MeshLambertMaterial( { color:0x999999, shading: THREE.SmoothShading, side: THREE.DoubleSide } ) );
-    //   mesh.scale.set(20,20,20);
-    //   mesh.position.x = 500;
-    //   mesh.position.y = 50;
-    //   mesh.position.z = 500;
-    //   mesh.userData = { URL: "./objects/pantalon2.json"};
-    //   mesh.name = "Braguette féminine";
-    //   mesh.author = "Louise Drulhe";
-    //   mesh.description = "De la même manière que la braguette classique permet aux hommes de faire pipi au coin d’une rue sombre le soir, la braguette feminine donne aux femmes la possibilité de faire pipi sans baisser le pantalon. Il s’agit d’une ouverture d’une dizaine de centimètres entre les deux jambes. Une fois accroupi et la braguette feminine ouverte il ne reste plus qu’à faire pipi ! ";
-    //   scene.add( mesh );
-    //   _meshs.push(mesh);
-    //   objects.push(mesh);
-    // });
-    // // julien
-    // loader.load( "objects/julien.json", function( geometry) {
-    //   mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    //   mesh.scale.set(30,30,30);
-    //   mesh.position.x = 100;
-    //   mesh.position.y = 0;
-    //   mesh.position.z = 0;
-    //   mesh.userData = { URL: "./objects/julien.json"};
-    //   mesh.name = "Formes";
-    //   mesh.author = "Julien Gargot (mécène)";
-    //   mesh.description = "Monstration de l’utilisation de différentes techniques d’outils sur cubes, objets par défaut de Blender. ";
-    //   scene.add( mesh );
-    //   _meshs.push(mesh);
-    //   objects.push(mesh);
-    // });
-    //
-    // // nelson
-    // loader.load( "objects/nelson.json", function( geometry) {
-    //   mesh = new THREE.Mesh( geometry, gouraudMaterial);
-    //   mesh.scale.set(24.5,24.5,24.5);
-    //   mesh.position.x = 100;
-    //   mesh.position.y = 0;
-    //   mesh.position.z = -300;
-    //    mesh.userData = { URL: "./objects/nelson.json"};
-    //   mesh.name = "NanoHippoCameoTrisoRobot";
-    //   mesh.author = "Nelson Steinmetz";
-    //   mesh.description = "Un nano-robot caméléon-hippocampe en retard";
-    //   scene.add( mesh );
-    //   _meshs.push(mesh);
-    //   objects.push(mesh);
-    // });
-    //
-    // // dyson
-    // loader.load( "objects/dyson.json", function( geometry) {
-    //   mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    //   mesh.scale.set(50,50,50);
-    //   mesh.position.x = 600;
-    //   mesh.position.y = 300;
-    //   mesh.position.z = 0;
-    //   mesh.userData = { URL: "./objects/dyson.json"};
-    //   mesh.name = "Sphère de Dyson en construction";
-    //   mesh.author = "Vadim";
-    //   mesh.description = "Inspirée par le comportement étrange de l’étoile KIC 8462852";
-    //   scene.add( mesh );
-    //   _meshs.push(mesh);
-    //   objects.push(mesh);
-    // });
-    // // chaise
-    // loader.load( "objects/chaise.json", function( geometry) {
-    //   mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    //   mesh.scale.set(30,30,30);
-    //   mesh.position.x = 400;
-    //   mesh.position.y = 10;
-    //   mesh.position.z = -400;
-    //   mesh.userData = { URL: "./objects/chaise.json"};
-    //   mesh.name = "Chaise plate";
-    //   mesh.author = "Sarah Garcin";
-    //   mesh.description = "Une chaise Louis XV posée à plat";
-    //   scene.add( mesh );
-    //   _meshs.push(mesh);
-    //   objects.push(mesh);
-    // });
-    // // geographie
-    // loader.load( "objects/geographie.json", function( geometry) {
-    //   mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    //   mesh.scale.set(30,30,30);
-    //   mesh.position.x = 500;
-    //   mesh.position.y = 50;
-    //   mesh.position.z = -900;
-    //    mesh.userData = { URL: "./objects/geographie.json"};
-    //   mesh.name = "Géoagraphie";
-    //   mesh.author = "Mathilde";
-    //   mesh.description = "Sans description";
-    //   scene.add( mesh );
-    //   _meshs.push(mesh);
-    //   objects.push(mesh);
-    // });
-    // // tower
-    // loader.load( "objects/hugo-totems.js", function( geometry) {
-    //   mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    //   mesh.scale.set(20,20,20);
-    //   mesh.position.x = -400;
-    //   mesh.position.y = 10;
-    //   mesh.position.z = 0;
-    //    mesh.userData = { URL: "./objects/hugo-totems.json"};
-    //   mesh.name = "Trois petits totems";
-    //   mesh.author = "hugohil";
-    //   mesh.description = "Trois petits totems d'origine inconnue.";
-    //   scene.add( mesh );
-    //   _meshs.push(mesh);
-    //   objects.push(mesh);
-    // });
-    //
-    // // AKP
-    // loader.load( "objects/AK-P.json", function( geometry) {
-    //   mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    //   mesh.scale.set(6,6,6);
-    //   mesh.position.x = -300;
-    //   mesh.position.y = 50;
-    //   mesh.position.z = 500;
-    //    mesh.userData = { URL: "./objects/AK-P.json"};
-    //   mesh.name = "AK-P";
-    //   mesh.author = "leo";
-    //   mesh.description = "Un outil polyvalent et approprié au prolétaire.";
-    //   scene.add( mesh );
-    //   _meshs.push(mesh);
-    //   objects.push(mesh);
-    // });
-    //
-    // // birdman
-    // loader.load( "objects/birdman.json", function( geometry) {
-    //   mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    //   mesh.scale.set(20,20,20);
-    //   mesh.position.x = -200;
-    //   mesh.position.y = 300;
-    //   mesh.position.z = 800;
-    //    mesh.userData = { URL: "./objects/birdman.json"};
-    //   mesh.name = "BirdMan";
-    //   mesh.author = "Nolwenn Maudet";
-    //   mesh.description = "Un BirdMan est un outil très pratique pour vous balader en ville. Accrochez vous à ses pattes et demandez-lui une direction, il vous amènera à destination. Plus sympa qu'un taxi, moins cher qu'un Uber, profitez d'une vue à 900° de votre ville et dites adieu aux ascenceurs !";
-    //   scene.add( mesh );
-    //   _meshs.push(mesh);
-    //   objects.push(mesh);
-    // });
-    //
-    // // powerplant
-    // loader.load( "objects/powerplant.json", function( geometry) {
-    //   mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    //   mesh.scale.set(3,3,3);
-    //   mesh.position.x = -800;
-    //   mesh.position.y = 50;
-    //   mesh.position.z = -300;
-    //    mesh.userData = { URL: "./objects/powerplant.json"};
-    //   mesh.name = "Powerplant";
-    //   mesh.author = "bachir soussi chiadmi";
-    //   mesh.description = "énergie universelle";
-    //   scene.add( mesh );
-    //   _meshs.push(mesh);
-    //   objects.push(mesh);
-    // });
-    //
-    // // Louis
-    // loader.load( "objects/louis.json", function( geometry) {
-    //   mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    //   mesh.scale.set(60,60,60);
-    //   mesh.position.x = -500;
-    //   mesh.position.y = 10;
-    //   mesh.position.z = -300;
-    //    mesh.userData = { URL: "./objects/louis.json"};
-    //   mesh.name = "Machine à planter des clous";
-    //   mesh.author = "Louis Eveillard";
-    //   mesh.description = "D’après Gaston Lagaffe / Gala de Gaffes. Une machine pour planter un clou automatiquement. Nécessite 1 clou pour être fixée au mur au préalable.";
-    //   scene.add( mesh );
-    //   _meshs.push(mesh);
-    //   objects.push(mesh);
-    // });
-    //
-    // // Jules
-    // loader.load( "objects/jules.js", function( geometry) {
-    //   mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    //   mesh.scale.set(40,40,40);
-    //   mesh.position.x = -800;
-    //   mesh.position.y = 10;
-    //   mesh.position.z = -500;
-    //    mesh.userData = { URL: "./objects/jules.js"};
-    //   mesh.name = "Jules";
-    //   mesh.author = "Nom de l'auteur";
-    //   mesh.description = "Description de l'objet";
-    //   mesh.position.z = 700;
-    //   scene.add( mesh );
-    //   _meshs.push(mesh);
-    //   objects.push(mesh);
-    // });
-    //
-    // // Jules
-    // loader.load( "objects/micro-reality_ivan.js", function( geometry) {
-    //   mesh = new THREE.Mesh( geometry, gouraudMaterial );
-    //   mesh.scale.set(30,30,30);
-    //   mesh.position.x = -400;
-    //   mesh.position.y = 50;
-    //   mesh.position.z = -800;
-    //   mesh.userData = { URL: "./objects/micro-reality_ivan.js"};
-    //   mesh.name = "Micro Reality";
-    //   mesh.author = "Nom de l'auteur";
-    //   mesh.description = "Dispositif pour casque deréalité virtuelle qui permet de se balader dans le contenu d'un vivarium à l'échelle *100. Les capteurs modélisent le contenu du vivarium (insectes, petits animeaux, terre, plantes) en temps réel et l'envois dans le casque de réalité virtuelle avec lequel on peu se ballader.";
-    //   mesh.position.z = 700;
-    //   scene.add( mesh );
-    //   _meshs.push(mesh);
-    //   objects.push(mesh);
-    // });
