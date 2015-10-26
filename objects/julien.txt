@@ -1,0 +1,1 @@
+Monstration de l’utilisation de différentes techniques d’outils sur cubes, objets par défaut de Blender. 
