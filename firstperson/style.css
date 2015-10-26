@@ -40,6 +40,9 @@ body {
 #splash h2{
   font-size: 1.3em;
 }
+#splash h3{
+  font-size: 1em;
+}
 #splash p{
   font-size: 0.7em;
   margin-bottom: 1em;

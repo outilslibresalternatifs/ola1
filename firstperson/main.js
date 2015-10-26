@@ -263,19 +263,21 @@ $(document).ready(function() {
       scene.add( mesh );
       _meshs.push(mesh);
 
-      _loaded_objects++;
       updateLoader();
-      if(_loaded_objects == objects.length){
-        render();
-        _$splash.fadeOut();
-      }
     });
   };
 
   function updateLoader(){
+    _loaded_objects++;
     $('#splash .loaded').css({
       'width':(_loaded_objects*100)/objects.length +"%"
     });
+    if(_loaded_objects == objects.length){
+      render();
+      setTimeout(function(){
+        _$splash.fadeOut();
+      },1000);
+    }
   };
   // Set up the objects in the world
   function setupScene() {
