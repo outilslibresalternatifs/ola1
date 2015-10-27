@@ -206,6 +206,10 @@ $(document).ready(function() {
 
   function init() {
     console.log('init');
+    $('a', _$splash).on('click', function(event) {
+      // event.preventDefault();
+      event.stopPropagation();
+    });
     _$splash.css({width: WIDTH, height: HEIGHT}).one('click', function(e) {
       console.log('click splash');
       e.preventDefault();

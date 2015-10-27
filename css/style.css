@@ -55,6 +55,9 @@ body {
   font-size: 0.7em;
   margin-bottom: 0.4em;
 }
+#splash a{
+  color:inherit;
+}
 #splash .loader{
   height:1px;
   background-color: #555555;
