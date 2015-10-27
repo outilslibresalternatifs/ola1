@@ -42,10 +42,11 @@
 $(document).ready(function() {
 
   // Global vars
-  var t = THREE, scene, cam, renderer, controls, clock, projector;
+  var t = THREE, scene, cambox, cam, renderer, controls, clock, projector;
   var runAnim = true, mouse = { x: 0, y: 0 };
   var healthCube, lastHealthPickup = 0;
   var scene;
+  var _walls = [];
   var _meshs = [];
   var currentTarget = 0;
   var isFirstPerson = true;
@@ -203,6 +204,11 @@ $(document).ready(function() {
     });
   var _mousePos = {x:0,y:0};
 
+  'use strict';
+
+  Physijs.scripts.worker = 'js/physijs/physijs_worker.js';
+	Physijs.scripts.ammo = 'examples/js/ammo.js';
+
   function init() {
     console.log('init');
     _$splash.css({width: WIDTH, height: HEIGHT}).one('click', function(e) {
@@ -216,26 +222,43 @@ $(document).ready(function() {
   function init3dEnv() {
     console.log('init3dEnv');
     clock = new t.Clock(); // Used in render() for controls.update()
-    scene = new t.Scene(); // Holds all objects in the canvas
-    scene.fog = new t.FogExp2(FOGCOLOR, 0.0005); // color, density
+    // scene = new t.Scene(); // Holds all objects in the canvas
+    // scene.fog = new t.FogExp2(FOGCOLOR, 0.0005); // color, density
+    scene = new Physijs.Scene;
+    scene.setGravity(new THREE.Vector3( 0, -30, 0 ));
+    scene.addEventListener(
+      'update',
+      function() {
+        scene.simulate(); // undefined, 2 
+        // physics_stats.update();
+      }
+    );
 
     // initialize object to perform world/screen calculations
     projector = new t.Projector();
 
     // Set up camera
+    cambox = new Physijs.BoxMesh(
+      new t.SphereGeometry( 5, 8, 6 ),
+      new t.MeshBasicMaterial( { vertexColors: 0xff0000, wireframe: true } ),
+      0.3
+    );
+    cambox.position.x=0;
+    cambox.position.y=200;
+    cambox.position.z=-50;
+    // cambox.position.y = UNITSIZE;
     cam = new t.PerspectiveCamera(60, ASPECT, 1, 10000); // FOV, aspect, near, far
-    cam.position.y = UNITSIZE;
-    scene.add(cam);
+    cambox.add(cam);
+    scene.add(cambox);
 
     // Camera moves with mouse, flies around with WASD/arrow keys
-    controls = new t.FirstPersonControls(cam);
+    controls = new t.FirstPersonControls(cambox);
     controls.movementSpeed = MOVESPEED;
     controls.lookSpeed = LOOKSPEED;
     controls.lookVertical = true; // Temporary solution; play on flat surfaces only
-    // controls.noFly = true;
+    controls.noFly = false;
     controls.clickMove = true;
 
-    console.log('controls',controls);
     // World objects
     setupScene();
 
@@ -244,33 +267,176 @@ $(document).ready(function() {
       antialasing: true
     });
     renderer.setSize(WIDTH, HEIGHT);
+    //shadows
     renderer.shadowMapEnabled = true;
     renderer.shadowMapSoft = true;
     renderer.shadowMapType = t.PCFShadowMap;
+
     // Add the canvas to the document
     renderer.domElement.style.backgroundColor = BGCOLOR; // easier to see
     document.body.appendChild(renderer.domElement);
 
-    // Importer
+    // place camera
+    cam.position.y = 75;
+  } // end init3dEnv
+
+  // Set up the objects in the world
+  function setupScene() {
+    var UNITSIZE = 250, units = mapW;
+
+    // Geometry: floor
+    // var floor = new t.Mesh(
+    //     new t.CubeGeometry(units * UNITSIZE, 10, units * UNITSIZE),
+    //     new t.MeshLambertMaterial( { color:FLOORCOLOR, shading: t.SmoothShading, side: t.DoubleSide } )
+    // );
+    var floor_material = Physijs.createMaterial(
+			new t.MeshLambertMaterial({color:FLOORCOLOR,shading:t.SmoothShading,side:t.DoubleSide}),
+			0, // high friction
+			.4 // low restitution
+		);
+    var floor = new Physijs.BoxMesh(
+      new t.CubeGeometry(units * UNITSIZE, 10, units * UNITSIZE),
+      floor_material,
+      0 // mass
+		);
+		floor.receiveShadow = true;
+    scene.add(floor);
+    // _walls.push(floor);
+
+    // Geometry: walls
+    var cube = new t.CubeGeometry(UNITSIZE, WALLHEIGHT, UNITSIZE);
+    // var wall_material = new t.MeshLambertMaterial({color: WALLCOLOR});
+    var wall_material = Physijs.createMaterial(
+			new THREE.MeshLambertMaterial({color: WALLCOLOR}),
+			1, // high friction
+			.4 // low restitution
+		);
+
+    for (var i = 0; i < mapW; i++) {
+      for (var j = 0, m = map[i].length; j < m; j++) {
+        if (map[i][j]) {
+          var wall = new Physijs.BoxMesh(
+            cube,
+            wall_material,
+            0
+          );
+          wall.position.x = (i - units/2) * UNITSIZE;
+          wall.position.y = WALLHEIGHT/2;
+          wall.position.z = (j - units/2) * UNITSIZE;
+          wall.receiveShadow = true;
+          scene.add(wall);
+          _walls.push(wall);
+        }
+      }
+    }
+
+    // test
+    var cube_geometry = new t.BoxGeometry( 5, 5, 5 );
+    var cube_material = new t.MeshBasicMaterial( { color: 0x00ff00 } );
+    var repere = new Physijs.BoxMesh(
+      cube_geometry,
+      cube_material,
+      0.2
+    );
+    repere.position.set(0, WALLHEIGHT/2, 0);
+    scene.add( repere );
+
+
+    // ola
     var loader = new t.JSONLoader();
     var gouraudMaterial = new t.MeshLambertMaterial({
       color:0xFFFFFF,
       shading: t.SmoothShading,
       side: t.DoubleSide
     });
+    loader.load( "objects/ola-logo.json", function(geometry) {
+      _ola = new t.Mesh( geometry, gouraudMaterial);
+      _ola.scale.set(50,50,50);
+      // _ola.position.set(obj.position);
+      _ola.position.x = 0;
+      _ola.position.y = 10;
+      _ola.position.z = 0;
+      _ola.castShadow = true;
+      _ola.receiveShadow = false;
+      scene.add(_ola);
+    });
 
+    // add lights
+    sceneAddLights(units);
+
+    // workshop objects
+    // when all objects are loaded the nav will start
     for (var i = 0; i < objects.length; i++) {
       loadObject(objects[i],loader,gouraudMaterial);
     }
 
-    cam.position.y = 75;
+  };
 
-    $('body').on('mousemove', function(event) {
-      _mousePos.x = (event.clientX / window.innerWidth) *2 -1;
-      _mousePos.y = -(event.clientY / window.innerHeight) *2 +1;
-    });
+  function sceneAddLights(units){
 
-  } // end init3dEnv
+    // Lighting
+    var floorw = (units * UNITSIZE *0.8);
+
+    // var geometry = new t.BoxGeometry( 5, 5, 5 );
+    // var material = new t.MeshBasicMaterial( { color: 0x00ff00 } );
+    // var repere = new t.Mesh( geometry, material );
+    // repere.position.set(floorw/2, WALLHEIGHT/2, floorw/2);
+    // scene.add( repere );
+
+    var light = new t.DirectionalLight(0xffffff,0.4);
+    light.position.set( 0, WALLHEIGHT/2, 0 );
+    light.target.position.set(0, 0, 0);
+    light.castShadow = true;
+    // light.shadowDarkness = 0.9;
+    light.shadowCameraVisible = true;
+    light.shadowBias = -.01;
+    light.shadowMapWidth = floorw*10;
+    light.shadowMapHeight = floorw*10;
+
+    light.shadowCameraNear = 0;
+    light.shadowCameraFar = 100;
+
+    light.shadowCameraLeft = -50;
+    light.shadowCameraRight = 50;
+    light.shadowCameraTop = -50;15
+    light.shadowCameraBottom = 50;
+
+    scene.add( light );
+
+    var directionalLight1 = new t.DirectionalLight( 0x0000ff, 0.7 );
+    directionalLight1.position.set( 0, WALLHEIGHT/2, floorw/2 );
+    scene.add( directionalLight1 );
+
+    var directionalLight2 = new t.DirectionalLight( 0x00ff00, 0.7 );
+    directionalLight2.position.set( floorw/2, WALLHEIGHT/2, 0 );
+    scene.add( directionalLight2 );
+    //
+    var directionalLight3 = new t.DirectionalLight( 0xffff00, 0.7 );
+    directionalLight3.position.set( 0, WALLHEIGHT/2, -floorw/2 );
+    scene.add( directionalLight3 );
+    //
+    var directionalLight4 = new t.DirectionalLight( 0xff00ff, 0.7 );
+    directionalLight4.position.set( -floorw/2, WALLHEIGHT/2, 0 );
+    scene.add( directionalLight4 );
+
+    // OLD
+    // var lightbox = units*0.5;
+    // var light = new t.HemisphereLight(0x85bdff, 0xffffff,1);
+    // light.position.set( units/2, 500, units/2 );
+    // scene.add( light );
+    // var directionalLight1 = new t.DirectionalLight( 0xffffff, 0.5 );
+    // directionalLight1.position.set( 0, 15, 0 );
+    // scene.add( directionalLight1 );
+    // var directionalLight2 = new t.DirectionalLight( 0x0000ff, 0.5 );
+    // directionalLight2.position.set( 0, 15, lightbox );
+    // scene.add( directionalLight2 );
+    // var directionalLight3 = new t.DirectionalLight( 0xff00ff, 0.5 );
+    // directionalLight3.position.set( lightbox, 15, lightbox );
+    // scene.add( directionalLight3 );
+    // var directionalLight4 = new t.DirectionalLight( 0xffff00, 0.5 );
+    // directionalLight4.position.set( lightbox, 15, 0 );
+    // scene.add( directionalLight4 );
+  };
 
   function loadObject(obj,loader,gouraudMaterial){
     loader.load( "objects/"+obj.filename, function(geometry) {
@@ -300,127 +466,13 @@ $(document).ready(function() {
       'width':(_loaded_objects*100)/objects.length +"%"
     });
     if(_loaded_objects == objects.length){
-      render();
+      requestAnimationFrame( render );
+      scene.simulate();
       setTimeout(function(){
         _$splash.fadeOut();
       },1000);
     }
   };
-  // Set up the objects in the world
-  function setupScene() {
-    var UNITSIZE = 250, units = mapW;
-
-    // Geometry: floor
-    var floor = new t.Mesh(
-        new t.CubeGeometry(units * UNITSIZE, 10, units * UNITSIZE),
-        new t.MeshLambertMaterial( { color:FLOORCOLOR, shading: t.SmoothShading, side: t.DoubleSide } )
-    );
-    floor.receiveShadow = true;
-    scene.add(floor);
-
-    // Geometry: walls
-    var cube = new t.CubeGeometry(UNITSIZE, WALLHEIGHT, UNITSIZE);
-    var materials = [new t.MeshLambertMaterial({color: WALLCOLOR})];
-
-    for (var i = 0; i < mapW; i++) {
-      for (var j = 0, m = map[i].length; j < m; j++) {
-        if (map[i][j]) {
-          var wall = new t.Mesh(cube, materials[map[i][j]-1]);
-          wall.position.x = (i - units/2) * UNITSIZE;
-          wall.position.y = WALLHEIGHT/2;
-          wall.position.z = (j - units/2) * UNITSIZE;
-          wall.receiveShadow = true;
-          scene.add(wall);
-        }
-      }
-    }
-
-    // ola
-    var loader = new t.JSONLoader();
-    var gouraudMaterial = new t.MeshLambertMaterial({
-      color:0xFFFFFF,
-      shading: t.SmoothShading,
-      side: t.DoubleSide
-    });
-    loader.load( "objects/ola-logo.json", function(geometry) {
-      _ola = new t.Mesh( geometry, gouraudMaterial);
-      _ola.scale.set(50,50,50);
-      // _ola.position.set(obj.position);
-      _ola.position.x = 0;
-      _ola.position.y = 10;
-      _ola.position.z = 0;
-      _ola.castShadow = true;
-      _ola.receiveShadow = false;
-      scene.add( _ola );
-    });
-
-
-    // Lighting
-    var floorw = (units * UNITSIZE *0.8);
-
-    // var geometry = new t.BoxGeometry( 5, 5, 5 );
-    // var material = new t.MeshBasicMaterial( { color: 0x00ff00 } );
-    // var repere = new t.Mesh( geometry, material );
-    // repere.position.set(floorw/2, WALLHEIGHT/2, floorw/2);
-    // scene.add( repere );
-
-    var light = new t.DirectionalLight(0xffffff,0.4);
-    light.position.set( 0, WALLHEIGHT, 0 );
-    light.target.position.set(0, 0, 0);
-    light.castShadow = true;
-    light.shadowDarkness = 0.9;
-    light.shadowCameraVisible = true;
-    // light.shadowBias = 0.0001;
-    light.shadowMapWidth = floorw;
-    light.shadowMapHeight = floorw;
-
-    light.shadowCameraNear = 0;
-    light.shadowCameraFar = 15;
-
-    light.shadowCameraLeft = -5;
-    light.shadowCameraRight = 5;
-    light.shadowCameraTop = 5;
-    light.shadowCameraBottom = -5;
-
-    scene.add( light );
-
-    var directionalLight1 = new t.DirectionalLight( 0x0000ff, 0.7 );
-    directionalLight1.position.set( 0, WALLHEIGHT/2, floorw/2 );
-    scene.add( directionalLight1 );
-
-    var directionalLight2 = new t.DirectionalLight( 0x00ff00, 0.7 );
-    directionalLight2.position.set( floorw/2, WALLHEIGHT/2, 0 );
-    scene.add( directionalLight2 );
-    //
-    var directionalLight3 = new t.DirectionalLight( 0xffff00, 0.7 );
-    directionalLight3.position.set( 0, WALLHEIGHT/2, -floorw/2 );
-    scene.add( directionalLight3 );
-    //
-    var directionalLight4 = new t.DirectionalLight( 0xff00ff, 0.7 );
-    directionalLight4.position.set( -floorw/2, WALLHEIGHT/2, 0 );
-    scene.add( directionalLight4 );
-
-    // for (var i = 0; i < lights.length; i++) {
-    //   lights[i]
-    // }
-
-    // var lightbox = units*0.5;
-    // var light = new t.HemisphereLight(0x85bdff, 0xffffff,1);
-    // light.position.set( units/2, 500, units/2 );
-    // scene.add( light );
-    // var directionalLight1 = new t.DirectionalLight( 0xffffff, 0.5 );
-    // directionalLight1.position.set( 0, 15, 0 );
-    // scene.add( directionalLight1 );
-    // var directionalLight2 = new t.DirectionalLight( 0x0000ff, 0.5 );
-    // directionalLight2.position.set( 0, 15, lightbox );
-    // scene.add( directionalLight2 );
-    // var directionalLight3 = new t.DirectionalLight( 0xff00ff, 0.5 );
-    // directionalLight3.position.set( lightbox, 15, lightbox );
-    // scene.add( directionalLight3 );
-    // var directionalLight4 = new t.DirectionalLight( 0xffff00, 0.5 );
-    // directionalLight4.position.set( lightbox, 15, 0 );
-    // scene.add( directionalLight4 );
-  }
 
   // Update and display
   function render(millis) {
@@ -437,37 +489,35 @@ $(document).ready(function() {
     _ola.rotation.y += 0.005;
     // _meshs[6].rotation.y += 0.005;
 
+    checkCollisions();
+
+    // check objects pointed by mouse to show corresponding cartel
     checkIntersect();
 
     renderer.render(scene, cam); // Repaint
   };
 
+  function checkCollisions(){
+
+  };
+
   function checkIntersect(){
     // create a Ray with origin at the mouse position
-    //   and direction into the scene (camera direction)
+    // and direction into the scene (camera direction)
     var vector = new t.Vector3( _mousePos.x, _mousePos.y, 1 );
     vector.unproject(cam);
     var ray = new t.Raycaster( cam.position, vector.sub( cam.position ).normalize() );
 
     // create an array containing all objects in the scene with which the ray intersects
-    var intersects = ray.intersectObjects( _meshs ); //scene.children
-
-    // INTERSECTED = the object in the scene currently closest to the camera
-    //		and intersected by the Ray projected from the mouse position
+    var intersects_objects = ray.intersectObjects( _meshs ); //scene.children
 
     // if there is one (or more) intersections
-    if ( intersects.length > 0 ){
-      // console.log('there is intersects', intersects);
+    if ( intersects_objects.length > 0 ){
       // if the closest object intersected is not the currently stored intersection object
-      if ( intersects[0].object != INTERSECTED ){
-        // restore previous intersection object (if it exists) to its original color
-        // if ( INTERSECTED )
+      if ( intersects_objects[0].object != INTERSECTED && (INTERSECTED && INTERSECTED.name != intersects_objects[0].object.name)){
         // store reference to closest object as current intersection object
-        INTERSECTED = intersects[ 0 ].object;
+        INTERSECTED = intersects_objects[0].object;
 
-        console.log('new intersect', INTERSECTED.name);
-
-        // update text, if it has a "name" field.
         if ( INTERSECTED.name ){
           fillCartel(INTERSECTED);
           showCartel();
@@ -475,9 +525,7 @@ $(document).ready(function() {
           hideCartel();
         }
       }
-    }
-    else{ // there are no intersections
-      console.log('there is not intersetcs');
+    }else{ // there are no intersections
       hideCartel();
       INTERSECTED = null;
     }
@@ -508,7 +556,7 @@ $(document).ready(function() {
   * Cartels
   */
   function fillCartel (object){
-    console.log('fillCartel', object);
+    // console.log('fillCartel', object);
     _$cartel.empty();
     var content = "<h2>"+object.name+"</h2><h3>"+object.author+"</h3><p>"+object.description+"</p><a href='"+object.userData.URL+"' alt='"+object.name+"'>Fichier source</a>";
     _$cartel.append(content);
@@ -565,20 +613,10 @@ $(document).ready(function() {
     }
   });
 
+  $('body').on('mousemove', function(event) {
+    _mousePos.x = (event.clientX / window.innerWidth) *2 -1;
+    _mousePos.y = -(event.clientY / window.innerHeight) *2 +1;
+  });
+
   init();
 });
-
-/*
-* helpers
-*/
-
-function getMapSector(v) {
-  var x = Math.floor((v.x + UNITSIZE / 2) / UNITSIZE + mapW/2);
-  var z = Math.floor((v.z + UNITSIZE / 2) / UNITSIZE + mapW/2);
-  return {x: x, z: z};
-}
-
-function checkWallCollision(v) {
-  var c = getMapSector(v);
-  return map[c.x][c.z] > 0;
-}
