@@ -80,7 +80,8 @@ $(document).ready(function() {
       position:{x:500,y:50,z:500},
       name:"Braguette féminine",
       author:"Louise Drulhe",
-      description:"De la même manière que la braguette classique permet aux hommes de faire pipi au coin d’une rue sombre le soir, la braguette feminine donne aux femmes la possibilité de faire pipi sans baisser le pantalon. Il s’agit d’une ouverture d’une dizaine de centimètres entre les deux jambes. Une fois accroupi et la braguette feminine ouverte il ne reste plus qu’à faire pipi ! "
+      description:"De la même manière que la braguette classique permet aux hommes de faire pipi au coin d’une rue sombre le soir, la braguette feminine donne aux femmes la possibilité de faire pipi sans baisser le pantalon. Il s’agit d’une ouverture d’une dizaine de centimètres entre les deux jambes. Une fois accroupi et la braguette feminine ouverte il ne reste plus qu’à faire pipi ! ",
+      color:0x999999
     },
     {
       filename:"julien.json",
@@ -224,7 +225,7 @@ $(document).ready(function() {
 
     // Set up camera
     cam = new t.PerspectiveCamera(60, ASPECT, 1, 10000); // FOV, aspect, near, far
-    cam.position.y = UNITSIZE;
+    cam.position.y = 75;
     scene.add(cam);
 
     // Camera moves with mouse, flies around with WASD/arrow keys
@@ -251,20 +252,6 @@ $(document).ready(function() {
     renderer.domElement.style.backgroundColor = BGCOLOR; // easier to see
     document.body.appendChild(renderer.domElement);
 
-    // Importer
-    var loader = new t.JSONLoader();
-    var gouraudMaterial = new t.MeshLambertMaterial({
-      color:0xFFFFFF,
-      shading: t.SmoothShading,
-      side: t.DoubleSide
-    });
-
-    for (var i = 0; i < objects.length; i++) {
-      loadObject(objects[i],loader,gouraudMaterial);
-    }
-
-    cam.position.y = 75;
-
     $('body').on('mousemove', function(event) {
       _mousePos.x = (event.clientX / window.innerWidth) *2 -1;
       _mousePos.y = -(event.clientY / window.innerHeight) *2 +1;
@@ -272,40 +259,6 @@ $(document).ready(function() {
 
   } // end init3dEnv
 
-  function loadObject(obj,loader,gouraudMaterial){
-    loader.load( "objects/"+obj.filename, function(geometry) {
-      var mesh = new t.Mesh( geometry, gouraudMaterial);
-      mesh.scale.set(obj.scale,obj.scale,obj.scale);
-      // mesh.position.set(obj.position);
-      mesh.position.x = obj.position.x;
-      mesh.position.y = obj.position.y;
-      mesh.position.z = obj.position.z;
-      mesh.castShadow = true;
-      mesh.receiveShadow = false;
-      // customs
-      mesh.userData = {URL:"./objects/"+obj.filename};
-      mesh.name = obj.name;
-      mesh.author = obj.author;
-      mesh.description = obj.description;
-      scene.add( mesh );
-      _meshs.push(mesh);
-
-      updateLoader();
-    });
-  };
-
-  function updateLoader(){
-    _loaded_objects++;
-    $('#splash .loaded').css({
-      'width':(_loaded_objects*100)/objects.length +"%"
-    });
-    if(_loaded_objects == objects.length){
-      render();
-      setTimeout(function(){
-        _$splash.fadeOut();
-      },1000);
-    }
-  };
   // Set up the objects in the world
   function setupScene() {
     var UNITSIZE = 250, units = mapW;
@@ -335,13 +288,15 @@ $(document).ready(function() {
       }
     }
 
-    // ola
+
     var loader = new t.JSONLoader();
     var gouraudMaterial = new t.MeshLambertMaterial({
       color:0xFFFFFF,
       shading: t.SmoothShading,
       side: t.DoubleSide
     });
+
+    // ola
     loader.load( "objects/ola-logo.json", function(geometry) {
       _ola = new t.Mesh( geometry, gouraudMaterial);
       _ola.scale.set(50,50,50);
@@ -354,6 +309,10 @@ $(document).ready(function() {
       scene.add( _ola );
     });
 
+    // workshop objects
+    for (var i = 0; i < objects.length; i++) {
+      loadObject(objects[i],loader);
+    }
 
     // Lighting
     var floorw = (units * UNITSIZE *0.8);
@@ -421,6 +380,50 @@ $(document).ready(function() {
     // directionalLight4.position.set( lightbox, 15, 0 );
     // scene.add( directionalLight4 );
   }
+
+  // laodobject with properties
+  function loadObject(obj,loader){
+
+    var material = new t.MeshLambertMaterial({
+      color:obj.color ? obj.color : 0xFFFFFF,
+      shading: t.SmoothShading,
+      side: t.DoubleSide
+    });
+
+    loader.load( "objects/"+obj.filename, function(geometry) {
+      var mesh = new t.Mesh( geometry, material);
+      mesh.scale.set(obj.scale,obj.scale,obj.scale);
+      // mesh.position.set(obj.position);
+      mesh.position.x = obj.position.x;
+      mesh.position.y = obj.position.y;
+      mesh.position.z = obj.position.z;
+      mesh.castShadow = true;
+      mesh.receiveShadow = false;
+      // customs
+      mesh.userData = {URL:"./objects/"+obj.filename};
+      mesh.name = obj.name;
+      mesh.author = obj.author;
+      mesh.description = obj.description;
+      scene.add( mesh );
+      _meshs.push(mesh);
+
+      updateLoader();
+    });
+  };
+
+  // upadet splash screen loader
+  function updateLoader(){
+    _loaded_objects++;
+    $('#splash .loaded').css({
+      'width':(_loaded_objects*100)/objects.length +"%"
+    });
+    if(_loaded_objects == objects.length){
+      render();
+      setTimeout(function(){
+        _$splash.fadeOut();
+      },1000);
+    }
+  };
 
   // Update and display
   function render(millis) {
