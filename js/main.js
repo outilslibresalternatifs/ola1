@@ -315,7 +315,7 @@ $(document).ready(function() {
 
     // workshop objects
     for (var i = 0; i < objects.length; i++) {
-      loadObject(objects[i],loader);
+      loadObject(i,objects[i],loader);
     }
 
     // Lighting
@@ -386,7 +386,7 @@ $(document).ready(function() {
   }
 
   // laodobject with properties
-  function loadObject(obj,loader){
+  function loadObject(index,obj,loader){
 
     var material = new t.MeshLambertMaterial({
       color:obj.color ? obj.color : 0xFFFFFF,
@@ -409,8 +409,8 @@ $(document).ready(function() {
       mesh.author = obj.author;
       mesh.description = obj.description;
       scene.add( mesh );
-      _meshs.push(mesh);
-
+      // _meshs.push(mesh);
+      objects[index].object = mesh;
       updateLoader();
     });
   };
@@ -443,7 +443,10 @@ $(document).ready(function() {
     }
 
     _ola.rotation.y += 0.005;
-    // _meshs[6].rotation.y += 0.005;
+    //dyson sphere
+    objects[6].object.rotation.y += 0.005;
+    //powerplant
+    objects[12].object.rotation.y += 0.05;
 
     renderer.render(scene, cam); // Repaint
   };
