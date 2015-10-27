@@ -25,20 +25,22 @@ body {
   background-color: #000000;
   color: #FFFFFF;
   cursor: pointer;
-  padding-top: 25vh;
+  padding-top: 15vh;
+  line-height:25px;
+  font-size:20px;
   z-index: 1001;
 }
 #splash >*{
-  max-width:30vw;
+  max-width:40vw;
   min-width: 300px;
   margin:0 auto;
 }
 #splash h1{
-  font-size: 2em;
+  font-size: 1.5em;
   margin: 0.5em 0;
 }
 #splash h2{
-  font-size: 1.3em;
+  font-size: 1em;
 }
 #splash h3{
   font-size: 1em;
@@ -49,6 +51,9 @@ body {
 }
 #splash ul{
   padding:0;
+  columns:2;
+  -moz-columns:2;
+  -webkit-columns:2;
 }
 #splash li{
   list-style: none;
@@ -62,13 +67,14 @@ body {
   height:1px;
   background-color: #555555;
   position: relative;
+  margin-bottom:5px;
 }
 #splash .loaded{
   position: absolute;
-  top:0; left:0;
+  top:0px; left:0;
   height:100%;
   width:1;
-  background-color: #fff;
+  background-color: magenta;
   transition: width 0.5s;
 }
 
