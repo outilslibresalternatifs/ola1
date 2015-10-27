@@ -430,14 +430,13 @@ $(document).ready(function() {
     var aispeed = delta * MOVESPEED;
     if(isFirstPerson){
       controls.update(delta); // Move camera
+      checkIntersect();
     } else {
       updateCamera(millis);
     }
 
     _ola.rotation.y += 0.005;
     // _meshs[6].rotation.y += 0.005;
-
-    checkIntersect();
 
     renderer.render(scene, cam); // Repaint
   };
