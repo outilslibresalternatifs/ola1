@@ -409,7 +409,7 @@ $(document).ready(function() {
       mesh.author = obj.author;
       mesh.description = obj.description;
       scene.add( mesh );
-      // _meshs.push(mesh);
+      _meshs.push(mesh);
       objects[index].object = mesh;
       updateLoader();
     });
